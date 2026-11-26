@@ -23,7 +23,8 @@
     "PAYMENTS_PROVIDER",
     "SEED_ALLOW_REMOTE",
     "JWT_SECRET",
-    "OTP_SECRET"
+    "OTP_SECRET",
+    "S3_PUBLIC_ENDPOINT"
   ],
   "tasks": {
     "build": {

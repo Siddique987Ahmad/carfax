@@ -25,6 +25,13 @@ env:
   MIGRATION_DATABASE_URL: postgres://carfax:carfax@localhost:5432/carfax
   APP_DB_PASSWORD: carfax-app-local
   REDIS_URL: redis://localhost:6379
+  S3_ENDPOINT: http://localhost:8333
+  S3_REGION: us-east-1
+  S3_ACCESS_KEY_ID: carfax
+  S3_SECRET_ACCESS_KEY: carfax-local-secret
+  S3_FORCE_PATH_STYLE: 'true'
+  S3_BUCKET_PHOTOS: photos
+  S3_BUCKET_REPORTS: reports
   MESSAGING_PROVIDER: memory
   JWT_SECRET: ci-only-jwt-secret-not-used-anywhere-else-000
   OTP_SECRET: ci-only-otp-secret-not-used-anywhere-else-000
@@ -72,6 +79,13 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      # S3-compatible storage for the photo upload tests (api/07). Service containers can't pass
+      # SeaweedFS its start command, so the s3 service from the local Compose file is used instead.
+      - name: Start photo storage
+        run: |
+          docker compose -f infra/docker-compose.yml up -d --wait s3
+          docker compose -f infra/docker-compose.yml run --rm s3-init
 
       - name: Choose what to check
         id: scope

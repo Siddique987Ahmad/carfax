@@ -15,6 +15,8 @@ import { HealthController } from './health/health.controller';
 import { loggerParams } from './logging';
 import { MessagingModule } from './messaging/messaging.module';
 import { RedisModule } from './redis/redis.module';
+import { StorageModule } from './storage/storage.module';
+import { UploadsModule } from './uploads/uploads.module';
 
 export interface AppModuleOptions {
   /** Where logs go; tests pass an in-memory stream. Defaults to stdout. */
@@ -32,6 +34,8 @@ export interface AppModuleOptions {
     AuthModule,
     GaragesModule,
     CarsModule,
+    StorageModule,
+    UploadsModule,
   ],
   controllers: [HealthController],
   providers: [

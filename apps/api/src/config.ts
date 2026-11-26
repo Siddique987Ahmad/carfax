@@ -28,6 +28,18 @@ const ConfigSchema = z
      * tests. WhatsApp and SMS arrive with workers/04 once the business accounts are approved.
      */
     MESSAGING_PROVIDER: z.enum(['console', 'memory']).default('console'),
+    /** Photo storage: Cloudflare R2 in real environments, SeaweedFS locally (setup/03). */
+    S3_ENDPOINT: z.url(),
+    /**
+     * The address phones use to reach storage, if it differs from S3_ENDPOINT (e.g. this computer's
+     * LAN IP, so a phone on the same Wi-Fi can upload to local SeaweedFS). Defaults to S3_ENDPOINT.
+     */
+    S3_PUBLIC_ENDPOINT: z.union([z.literal(''), z.url()]).optional(),
+    S3_REGION: z.string().default('auto'),
+    S3_ACCESS_KEY_ID: z.string().min(1),
+    S3_SECRET_ACCESS_KEY: z.string().min(1),
+    S3_FORCE_PATH_STYLE: z.stringbool().default(false),
+    S3_BUCKET_PHOTOS: z.string().min(1),
     /** Empty locally: Sentry is off. */
     SENTRY_DSN: z.union([z.literal(''), z.url()]).default(''),
     /** Only to check the app isn't given the owner's connection by mistake. */
