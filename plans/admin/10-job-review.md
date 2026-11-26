@@ -6,6 +6,7 @@ Status: planned · Phase: pre-pilot · Depends on: admin/09, api/07
 Ops sees everything needed to judge one flagged job on a single screen, and approves or rejects it in a few taps, including on a phone.
 
 ## Decisions
+- **From api/10:** record each decision in the audit log as `job.approve` or `job.reject` (entity `job`, with the note): the garage's job detail (`GET /v1/jobs/:id`) shows these as review notes. Use `FLAG_DESCRIPTIONS` from `@carfax/shared` for the plain-word flag text.
 - **Upload sample images for the seed data first** (from db/08): seeded photo rows point at storage keys under `seed/` with no files behind them. Add a `pnpm db:seed:photos` step that uploads a few sample odometer and before/after images to those keys, so the photo viewer has something to show.
 - **Show the evidence together:** the odometer photo (zoomable), the typed reading, the reading from the photo, and the car's mileage timeline with this job highlighted.
 - **Every decision needs a note.** `PATCH /admin/jobs/:id` writes the note to the audit log, as in the tech doc.

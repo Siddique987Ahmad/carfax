@@ -15,3 +15,12 @@ export const FLAG_CODES = [
   'FAR_FROM_GARAGE',
 ] as const;
 export type FlagCode = (typeof FLAG_CODES)[number];
+
+/** Each flag in plain words, for garages and ops (api/10). The apps may translate by code. */
+export const FLAG_DESCRIPTIONS: Readonly<Record<FlagCode, string>> = {
+  MILEAGE_DROP: 'The odometer reading is lower than an earlier visit',
+  NO_PHOTO: 'No odometer photo was received',
+  OCR_MISMATCH: 'The reading in the photo differs from the typed reading',
+  MANY_JOBS_SHORT_TIME: 'Many visits for this car within a few days',
+  FAR_FROM_GARAGE: 'The photo was taken far from the garage',
+};
