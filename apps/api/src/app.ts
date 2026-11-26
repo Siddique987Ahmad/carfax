@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import type { INestApplication } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, type OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import { Logger } from 'nestjs-pino';
 import { cleanupOpenApiDoc } from 'nestjs-zod';
@@ -10,7 +11,7 @@ import { AppModule, type AppModuleOptions } from './app.module';
 export async function createApp(
   options: { preview?: boolean } & AppModuleOptions = {},
 ): Promise<INestApplication> {
-  const app = await NestFactory.create(AppModule.register(options), {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule.register(options), {
     bufferLogs: true,
     preview: options.preview ?? false,
   });
@@ -21,6 +22,8 @@ export async function createApp(
     app.flushLogs();
   }
   app.setGlobalPrefix('v1');
+  // A sync push of 50 jobs with their items and photos is larger than Express's 100 kB default.
+  app.useBodyParser('json', { limit: '1mb' });
   app.enableShutdownHooks();
   return app;
 }

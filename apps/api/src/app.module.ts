@@ -15,7 +15,9 @@ import { HealthController } from './health/health.controller';
 import { loggerParams } from './logging';
 import { MessagingModule } from './messaging/messaging.module';
 import { RedisModule } from './redis/redis.module';
+import { QueueModule } from './queue/queue.module';
 import { StorageModule } from './storage/storage.module';
+import { SyncModule } from './sync/sync.module';
 import { UploadsModule } from './uploads/uploads.module';
 
 export interface AppModuleOptions {
@@ -36,6 +38,8 @@ export interface AppModuleOptions {
     CarsModule,
     StorageModule,
     UploadsModule,
+    QueueModule,
+    SyncModule,
   ],
   controllers: [HealthController],
   providers: [

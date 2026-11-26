@@ -6,6 +6,7 @@ Status: planned · Phase: pre-pilot · Depends on: api/08, api/11
 The garage sees which customers are due for their next service and sends reminders that bring them back, which is the feature that wins garage owners (product doc).
 
 ## Decisions
+- **From api/08:** create reminder rows inside the sync push transaction (`SyncService.push`), from jobs with `next_service_due_date`, and cancel or mark `returned` the garage's open reminders for that car there too.
 - **Reminders are created automatically from jobs** during sync push, using simple rules in `packages/shared`, e.g. oil change → due in 3 months or +5,000 km, whichever comes first.
 - **Pilot: one tap only** (decided Nov 26, 2026). The owner sees due reminders and taps "send," which opens WhatsApp with a `wa.me` link. **Auto-send** (the worker sends on the due date) is switched on per garage once the WhatsApp Cloud API is approved.
 - **`POST /reminders/:id/send` returns the `wa.me` link** and marks the reminder sent, the same way as bills (api/12). With auto-send on later, the worker sends instead (workers/05).

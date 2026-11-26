@@ -150,6 +150,28 @@ export class CarIdentityService {
     return result;
   }
 
+  /**
+   * The car a phone-made car id stands for now: the car itself, or the car its alias points to,
+   * following merges. Null if the server has never seen the id.
+   */
+  async resolveCarId(tx: Tx, carId: string): Promise<string | null> {
+    const [car] = await tx
+      .select({ id: schema.cars.id })
+      .from(schema.cars)
+      .where(eq(schema.cars.id, carId));
+    if (car) return this.root(tx, car.id);
+    const [alias] = await tx
+      .select()
+      .from(schema.carAliases)
+      .where(eq(schema.carAliases.aliasId, carId));
+    return alias ? this.root(tx, alias.carId) : null;
+  }
+
+  /** The car's current plate, if it has one. */
+  async currentPlate(tx: Tx, carId: string): Promise<string | null> {
+    return (await this.currentRegistration(tx, { carId }))?.regNo ?? null;
+  }
+
   /** The car a plate or chassis number belongs to now, without creating anything. */
   async lookup(by: { regNo?: string; chassisNo?: string }) {
     let carId: string | undefined;

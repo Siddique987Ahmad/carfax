@@ -11,3 +11,5 @@ allowBuilds:
   '@swc/core': true
   # @scarf/scarf: install analytics pulled in by swagger-ui. Denied: it reports installs to its vendor.
   '@scarf/scarf': false
+  # msgpackr-extract: optional native speed-up for BullMQ's msgpackr; it works without it in plain JS.
+  msgpackr-extract: false

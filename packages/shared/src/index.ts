@@ -7,3 +7,5 @@ export * from './constants/work-types';
 export * from './schemas/common';
 export * from './utils/identifiers';
 export * from './errors';
+export * from './sync';
+export * from './queues';

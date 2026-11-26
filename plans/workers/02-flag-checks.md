@@ -6,6 +6,7 @@ Status: planned · Phase: pre-pilot · Depends on: workers/01, db/03
 Every synced job is checked automatically and is either approved or flagged for review, so only trustworthy records reach reports. This is the product doc's trust rules turned into code.
 
 ## Decisions
+- **From api/08:** consume `QUEUES.flagChecks` (`@carfax/shared`) with BullMQ prefix `${REDIS_KEY_PREFIX}bull`; each entry is `{ jobId }` with the job id as its BullMQ id. **Build the sweeper too:** jobs still `submitted` 5 minutes after `synced_at` get checked, because the API's queueing is best effort. A photo with `uploaded_at` empty is "still uploading" until the 24-hour grace ends. After checking, set the job to `approved` or `flagged`.
 - **Runs after each sync push,** once per job, and again for a whole car when ops edits or merges it (admin/12, admin/13).
 - **No flags → approved automatically.** Any flag → `flagged` and into the admin queue (admin/09).
 - **Checks, with starting thresholds to tune after the pilot:**

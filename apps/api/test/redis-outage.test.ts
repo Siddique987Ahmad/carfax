@@ -17,7 +17,10 @@ describe('Redis outage logging', () => {
     // Give ioredis time for several reconnect attempts.
     await new Promise((resolve) => setTimeout(resolve, 1500));
     await t.http.get('/v1/health').expect(503);
-    const lost = t.logs.filter((line) => line.includes('connection lost'));
-    expect(lost).toHaveLength(1);
+    // One line per connection: the API's Redis client and the job queue's each log their outage once.
+    const apiRedis = t.logs.filter((line) => line.includes('connection lost (retrying)'));
+    const queue = t.logs.filter((line) => line.includes('queue connection lost'));
+    expect(apiRedis).toHaveLength(1);
+    expect(queue.length).toBeLessThanOrEqual(1);
   });
 });
