@@ -73,4 +73,6 @@ Statuses: `planned` → `in progress` → `done`.
 - **Owner claims:** approved automatically when the owner's phone matches a garage's customer record or the full chassis number matches. There are no document uploads or manual review in the MVP (api/20, web/16).
 - **Free preview:** shows a range of record counts, not the exact number, to limit scraping (web/07).
 - **Bills and reminders in the pilot:** one tap from the garage's own WhatsApp (`wa.me` link), free and needing no Meta approval. Automatic sending through the WhatsApp Cloud API is built but switched on per garage only after Meta approves the account. The Cloud API (or SMS) is used from day one only for login OTPs. (Nov 26, 2026)
+- **Styling:** Tailwind CSS everywhere: the public site and admin panel directly, the garage app through NativeWind. One shared theme lives in `packages/tailwind-config` (setup/04). (Nov 27, 2026)
+- **Local file storage:** SeaweedFS stands in for Cloudflare R2 in development, because MinIO no longer publishes Docker images (setup/03).
 - **Work types:** oil change, **tuning**, brakes, denting/painting, engine, suspension, AC, electrical, other. Tuning was added to the product doc's list. (Nov 26, 2026)

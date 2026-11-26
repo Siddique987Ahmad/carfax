@@ -8,6 +8,7 @@ The shared packages exist with their structure and first contents, so the API, a
 ## Decisions
 - **`packages/shared`:** Zod schemas, types and constants: job statuses, flag codes, work types, roles and the permission map (admin/06), and `normaliseRegNo()` (admin/11).
 - **`packages/i18n`:** Urdu and English text as JSON, one file per language and feature, used by the garage app and the public site. Urdu is right-to-left; each app handles layout direction.
+- **`packages/tailwind-config`:** one shared Tailwind theme (brand colours, spacing, fonts including an Urdu font, the RTL setup) used by the public site, the admin panel and the garage app (through NativeWind), so all three look like one product.
 - **`packages/ui`: not created yet.** Admin keeps its components until the public site needs the same ones (decided in admin/02).
 - **Packages are used as TypeScript source,** with no build step. If a consumer can't handle that (e.g. NestJS in production), add a small tsup build to that package only.
 - **Work types are a fixed list in code** (oil change, tuning, brakes, denting/painting, engine, suspension, AC, electrical, other), from the product doc, so reports and flags can rely on them.
@@ -16,6 +17,7 @@ The shared packages exist with their structure and first contents, so the API, a
 **In:**
 - `packages/shared` with folders `schemas/`, `constants/`, `utils/` and tests
 - `packages/i18n` with `en/` and `ur/` and a type-safe key helper
+- `packages/tailwind-config` with the shared theme
 - A check that every English key has an Urdu translation (runs in CI)
 
 **Out (later items):**

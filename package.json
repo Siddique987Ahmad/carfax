@@ -6,15 +6,23 @@
     "node": ">=24 <25"
   },
   "scripts": {
-    "dev": "turbo run dev",
+    "dev": "pnpm services:up && turbo run dev",
     "build": "turbo run build",
-    "lint": "turbo run lint && eslint --max-warnings=0 eslint.config.mjs",
+    "lint": "turbo run lint && eslint --max-warnings=0 eslint.config.mjs scripts",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "env:init": "node scripts/env-init.mjs",
+    "services:up": "docker compose -f infra/docker-compose.yml up -d --wait && docker compose -f infra/docker-compose.yml run --rm s3-init",
+    "services:down": "docker compose -f infra/docker-compose.yml down",
+    "services:reset": "docker compose -f infra/docker-compose.yml down -v && pnpm services:up",
+    "services:check": "node scripts/check-services.mjs",
+    "services:logs": "docker compose -f infra/docker-compose.yml logs -f"
   },
   "devDependencies": {
+    "@aws-sdk/client-s3": "3.1169.0",
+    "@aws-sdk/s3-request-presigner": "3.1169.0",
     "@eslint/js": "10.0.1",
     "eslint": "10.15.0",
     "eslint-config-prettier": "10.1.8",
