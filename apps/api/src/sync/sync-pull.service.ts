@@ -13,7 +13,15 @@ export const PULL_OVERLAP_MS = 60_000;
 /** A new phone gets the last 12 months. */
 export const FIRST_SYNC_DAYS = 365;
 
-const TABLES = ['customers', 'jobs', 'job_items', 'job_photos', 'reminders', 'cars'] as const;
+const TABLES = [
+  'customers',
+  'jobs',
+  'job_items',
+  'job_photos',
+  'reminders',
+  'job_correction_requests',
+  'cars',
+] as const;
 type PullTable = (typeof TABLES)[number];
 type Row = Record<string, unknown> & { id: string; ua: string | null; deleted?: boolean };
 
@@ -54,7 +62,10 @@ function decode(raw: string): PullCursor {
   }
 }
 
-const ms = (column: string) => sql.raw(`(extract(epoch from ${column}) * 1000)::bigint`);
+// Milliseconds as a plain number. Not ::bigint: node-postgres returns bigint as a string, and
+// WatermelonDB needs numbers for its date columns (found in api/08b). Millisecond times fit
+// exactly in a JavaScript number until the year 287,396.
+const ms = (column: string) => sql.raw(`floor(extract(epoch from ${column}) * 1000)::float8`);
 
 /**
  * What changed in the caller's garage since the phone's last pull (api/09), in WatermelonDB's
@@ -195,6 +206,11 @@ export class SyncPullService {
         query = sql`select id, car_id, customer_id, source_job_id, kind, due_date::text, status,
             ${ms('sent_at')} as sent_at, returned_job_id, deleted_at is not null as deleted, updated_at::text as ua
           from reminders where garage_id = ${garageId} and ${window('updated_at')} ${keyset('updated_at')} ${order('updated_at')}`;
+        break;
+      case 'job_correction_requests':
+        query = sql`select id, job_id, requested_by, message, proposed, status, decision_note,
+            ${ms('decided_at')} as decided_at, ${ms('created_at')} as created_at, updated_at::text as ua
+          from job_correction_requests where garage_id = ${garageId} and ${window('updated_at')} ${keyset('updated_at')} ${order('updated_at')}`;
         break;
       case 'cars':
         // Cars this garage has a job on, that changed in the window (the car or its plates), or that a

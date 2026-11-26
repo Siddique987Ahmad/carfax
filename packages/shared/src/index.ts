@@ -9,3 +9,4 @@ export * from './utils/identifiers';
 export * from './errors';
 export * from './sync';
 export * from './queues';
+export * from './corrections';

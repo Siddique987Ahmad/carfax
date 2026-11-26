@@ -11,6 +11,7 @@ import { getConfig } from './config';
 import { DbModule } from './db/db.module';
 import { AllExceptionsFilter } from './errors/exception.filter';
 import { GaragesModule } from './garages/garages.module';
+import { JobsModule } from './jobs/jobs.module';
 import { HealthController } from './health/health.controller';
 import { loggerParams } from './logging';
 import { MessagingModule } from './messaging/messaging.module';
@@ -40,6 +41,7 @@ export interface AppModuleOptions {
     UploadsModule,
     QueueModule,
     SyncModule,
+    JobsModule,
   ],
   controllers: [HealthController],
   providers: [

@@ -141,6 +141,11 @@ describe('two phones in one garage', () => {
       make: 'Toyota',
       model: 'Corolla',
     });
+    // Times are numbers (ms), as WatermelonDB needs, not strings (found in api/08b).
+    const job = onMechanic.find('jobs', fromOwner.job)!;
+    expect(typeof job.device_created_at).toBe('number');
+    expect(typeof job.synced_at).toBe('number');
+    expect(typeof onMechanic.find('job_photos', fromOwner.photo)!.taken_at).toBe('number');
   });
 
   it("a later pull brings only what changed (plus the overlap), including a colleague's new job on an old car", async () => {

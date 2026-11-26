@@ -22,6 +22,7 @@ Each phone in a garage gets what changed since it last synced: jobs logged on th
   - **Prices:** a mechanic gets prices only on the jobs they logged (they send those bills); other jobs' `total_pkr` and item prices arrive empty. Owners get everything (garage-app/14: mechanics don't see the garage's earnings).
   - **Photos come as metadata** (with `uploaded`, not the file). Garage settings and the work-type list aren't pulled: the profile is `GET /garage/me` (api/05) and work types ship with the app (`@carfax/shared`).
   - **`updated_at` triggers and `deleted_at` columns already existed** (db/03, db/05).
+  - **Fixed in api/08b:** times were returned as strings (`::bigint` comes back as text from node-postgres); they're numbers now (`::float8`), and the tests check it. The pull also includes `job_correction_requests` (api/08b).
 
 ## Scope
 **In:**

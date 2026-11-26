@@ -15,6 +15,7 @@ import {
   real,
   text,
   timestamp,
+  unique,
   uniqueIndex,
   uuid,
   varchar,
@@ -94,6 +95,9 @@ export const jobs = pgTable(
       .on(t.syncedAt)
       .where(sql`${t.status} = 'flagged'`),
     index().on(t.customerId),
+    // Lets correction requests reference (job, garage) together, so a request's garage always
+    // matches its job's (api/08b).
+    unique('jobs_id_garage_unique').on(t.id, t.garageId),
     pgPolicy('jobs_garage_isolation', {
       for: 'all',
       using: garageScope(t.garageId),
@@ -260,6 +264,61 @@ export const reminders = pgTable(
     // Sync pulls (api/09).
     index().on(t.garageId, t.updatedAt),
     pgPolicy('reminders_garage_isolation', {
+      for: 'all',
+      using: garageScope(t.garageId),
+      withCheck: garageScope(t.garageId),
+    }),
+  ],
+);
+
+export const correctionStatus = pgEnum('correction_status', ['open', 'approved', 'rejected']);
+
+/**
+ * A garage asks ops to fix a mistake in a submitted job (api/08b): submitted jobs can't be edited
+ * from the app (api/08), so the garage proposes the right values and ops decide (admin/12).
+ */
+export const jobCorrectionRequests = pgTable(
+  'job_correction_requests',
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    jobId: uuid().notNull(),
+    garageId: uuid().notNull(),
+    requestedBy: uuid()
+      .notNull()
+      .references(() => users.id),
+    /** What's wrong, in the garage's words. */
+    message: text().notNull(),
+    /** The values the garage says are right, e.g. { odometerKm: 84250 }. */
+    proposed: jsonb(),
+    status: correctionStatus().notNull().default('open'),
+    decidedBy: uuid().references(() => users.id),
+    decidedAt: timestamp({ withTimezone: true }),
+    /** Ops' reason, shown to the garage. */
+    decisionNote: text(),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => [
+    foreignKey({
+      name: 'job_correction_requests_job_same_garage_fk',
+      columns: [t.jobId, t.garageId],
+      foreignColumns: [jobs.id, jobs.garageId],
+    }),
+    check(
+      'job_correction_requests_message_length',
+      sql`char_length(${t.message}) BETWEEN 3 AND 1000`,
+    ),
+    check(
+      'job_correction_requests_decided',
+      sql`(${t.status} = 'open') = (${t.decidedAt} IS NULL)`,
+    ),
+    // One open request per job, so the queue doesn't fill with repeats.
+    uniqueIndex('job_correction_requests_one_open')
+      .on(t.jobId)
+      .where(sql`${t.status} = 'open'`),
+    index().on(t.garageId, t.updatedAt),
+    index().on(t.status, t.createdAt),
+    pgPolicy('job_correction_requests_garage_isolation', {
       for: 'all',
       using: garageScope(t.garageId),
       withCheck: garageScope(t.garageId),

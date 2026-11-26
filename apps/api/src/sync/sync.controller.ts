@@ -42,6 +42,7 @@ class SyncPullDto extends createZodDto(
       job_items: PulledTableSchema,
       job_photos: PulledTableSchema,
       reminders: PulledTableSchema,
+      job_correction_requests: PulledTableSchema,
       cars: PulledTableSchema,
     }),
     timestamp: z.number(),
