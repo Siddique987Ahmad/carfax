@@ -13,6 +13,8 @@ PostgreSQL schema, migrations and the database client, using Drizzle ORM and dri
 1. Edit or add a table in `src/schema/` (one file per area, re-exported from `src/schema/index.ts`). Write names in camelCase; they become snake_case in the database.
 2. `pnpm db:generate` writes a new SQL file to `migrations/`. **Read it**: it's what will run on production.
 3. `pnpm db:migrate` applies it to your local database.
+   - drizzle-kit can't write extensions, functions or triggers. Add those by hand to the generated SQL file (see `0004_cars.sql`) or in a `--custom` migration (see `0003_updated_at_triggers.sql`).
+   - **Every table with an `updated_at` column needs the `set_updated_at` trigger.** A test fails if one is missing.
 4. Commit the schema change and the migration together. CI runs `pnpm db:check`, which fails if a schema change has no migration.
 
 `pnpm db:push` applies the schema directly without a migration. Use it only for quick local experiments, never on staging or production. `pnpm db:studio` opens a browser view of the local database.

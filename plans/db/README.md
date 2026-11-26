@@ -10,7 +10,7 @@ Each plan adds one group of tables (or one safety feature) with its migration, Z
 | 01 | [Drizzle setup, migrations and client](01-drizzle-setup.md) | done |
 | 02 | [Users, roles and admin login data](02-users-and-roles.md) | done |
 | 03 | [Garages, staff and customers](03-garages-members-customers.md) | done |
-| 04 | [Cars](04-cars.md) | planned |
+| 04 | [Cars](04-cars.md) | done |
 | 05 | [Jobs, work items, photos, flags and reminders](05-jobs-and-reminders.md) | planned |
 | 06 | [Audit log and database users](06-audit-log-and-db-users.md) | planned |
 | 07 | [Row-level security for garage data](07-row-level-security.md) | planned |

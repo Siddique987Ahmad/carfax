@@ -1,6 +1,6 @@
 # db/04 — Cars
 
-Status: planned · Phase: pre-pilot · Depends on: db/01
+Status: done (Nov 27, 2026) · Phase: pre-pilot · Depends on: db/01
 
 ## Goal
 One row per vehicle, built so that phones can create cars offline, duplicates can be merged later, and searching by plate is fast.
@@ -13,6 +13,12 @@ One row per vehicle, built so that phones can create cars offline, duplicates ca
 - **`reg_no` is stored normalised** (`LEA1234`) by the shared `normaliseRegNo()` function (admin/11). It's unique, and so is `chassis_no`. Unique columns still allow many empty values.
 - **Trigram indexes** on `reg_no` and `chassis_no` for partial-match search (admin/11), using the `pg_trgm` extension.
 - **Synced table:** `updated_at` trigger (from db/03).
+- **Built with these additions:**
+  - **The database only accepts normalised numbers:** CHECKs refuse `LEA-1234`, `lea1234` or a plate without both letters and digits. If any code path forgets `normaliseRegNo()`, it fails loudly instead of storing a second spelling of the same car.
+  - **CHECKs:** a car can't be merged into itself, an alias can't point to itself, and model and registration years must be 1950–2100.
+  - **`carInsertSchema`** (in `@carfax/db/zod`) takes any spelling and outputs the normalised form, and refuses a car with neither a plate nor a chassis number.
+  - **Constraint names are snake_case** (`cars_reg_no_unique`), set explicitly, because drizzle-kit otherwise names them from the TypeScript keys.
+  - **One migration file:** `pg_trgm` and the `updated_at` trigger were added by hand to the generated `0004_cars.sql` (drizzle-kit allows editing generated SQL; `db:check` only looks for missing files). The migration user needs permission to `CREATE EXTENSION` (db/06); every common managed Postgres allows `pg_trgm`.
 
 ## Scope
 **In:**
@@ -31,12 +37,12 @@ One row per vehicle, built so that phones can create cars offline, duplicates ca
 4. Export the Zod schemas.
 
 ## Files and folders touched
-- `packages/db/src/schema/cars.ts`, `packages/db/migrations/*`
+- `packages/db/src/schema/cars.ts`, `packages/db/src/zod.ts`, `packages/db/migrations/0004_cars.sql`
 
 ## Done when
-- [ ] A car with neither a plate nor a chassis number is refused
-- [ ] Inserting a car with an ID made on the phone works
-- [ ] A partial plate search uses the trigram index (checked with `EXPLAIN`)
+- [x] A car with neither a plate nor a chassis number is refused
+- [x] Inserting a car with an ID made on the phone works
+- [x] A partial plate search uses the trigram index (checked with `EXPLAIN`). The test proves the index serves `ILIKE '%…%'`. A one-off check with 100,000 cars showed Postgres choosing it by itself; with only a few thousand rows it reads the whole table instead, which is cheaper at that size.
 
 ## Open questions
 - Is a Punjab plate unique without its year? If not, the unique key becomes (`reg_no`, `reg_year`). The `reg_year` column is added now (nullable) so this can change without reshaping the table.

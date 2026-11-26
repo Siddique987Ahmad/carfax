@@ -1,8 +1,9 @@
 // Zod schemas made from the tables, for the API and admin to validate with the database's own rules.
 // This entry point never loads the Postgres driver, so it's safe for browser and app bundles.
 // Request-only schemas (forms, filters) stay hand-written in @carfax/shared.
-import { PAKISTAN_MOBILE_PATTERN } from '@carfax/shared';
+import { ChassisNoSchema, PAKISTAN_MOBILE_PATTERN, RegNoSchema } from '@carfax/shared';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
+import { carAliases, cars } from './schema/cars';
 import { customers, garageMembers, garages } from './schema/garages';
 import { userRoles, users } from './schema/users';
 
@@ -35,3 +36,18 @@ export const customerInsertSchema = createInsertSchema(customers, {
   phone: (s) => s.regex(PAKISTAN_MOBILE_PATTERN, 'Phone must be +923XXXXXXXXX'),
 });
 export const customerSelectSchema = createSelectSchema(customers);
+
+// cars (db/04)
+/** Any plate or chassis spelling goes in; the normalised form comes out. Needs at least one of the two. */
+export const carInsertSchema = createInsertSchema(cars, {
+  regNo: RegNoSchema.nullish(),
+  chassisNo: ChassisNoSchema.nullish(),
+  year: (s) => s.min(1950).max(2100),
+  regYear: (s) => s.min(1950).max(2100),
+}).refine((car) => car.regNo != null || car.chassisNo != null, {
+  message: 'A car needs a registration number or a chassis number',
+  path: ['regNo'],
+});
+export const carSelectSchema = createSelectSchema(cars);
+
+export const carAliasSelectSchema = createSelectSchema(carAliases);
