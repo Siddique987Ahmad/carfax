@@ -6,6 +6,7 @@ Status: planned · Phase: pre-pilot · Depends on: admin/09, api/07
 Ops sees everything needed to judge one flagged job on a single screen, and approves or rejects it in a few taps, including on a phone.
 
 ## Decisions
+- **Upload sample images for the seed data first** (from db/08): seeded photo rows point at storage keys under `seed/` with no files behind them. Add a `pnpm db:seed:photos` step that uploads a few sample odometer and before/after images to those keys, so the photo viewer has something to show.
 - **Show the evidence together:** the odometer photo (zoomable), the typed reading, the reading from the photo, and the car's mileage timeline with this job highlighted.
 - **Every decision needs a note.** `PATCH /admin/jobs/:id` writes the note to the audit log, as in the tech doc.
 - **"Approve and next"** moves straight to the next job in the queue, so ops can work through it quickly.

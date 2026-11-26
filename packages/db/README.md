@@ -30,6 +30,21 @@ All commands run from the repo root and read `.env` (`pnpm env:init`). The local
 
 **Never point the app at the owner:** Postgres skips row-level security for a table's owner (db/07). The migrations create `carfax_app` without a password; `pnpm db:provision-app-user` lets it log in with `APP_DB_PASSWORD`. On a new environment: run `pnpm db:migrate`, then `pnpm db:provision-app-user`.
 
+## Seed data (db/08)
+
+| Command                         | What it does                                                         |
+| ------------------------------- | -------------------------------------------------------------------- |
+| `pnpm db:reset`                 | **Local only.** Wipes the database, migrates, and loads the dev data |
+| `pnpm db:reset:demo`            | **Local only.** Same, with the demo data instead                     |
+| `pnpm db:seed` / `db:seed:demo` | Loads the data into an empty database (refuses if it has data)       |
+
+- **dev:** 8 garages in Lahore and Islamabad (one pending, one suspended), about 300 cars and 2,000 jobs over 18 months, about 5% flagged. It includes rollbacks, missing and misread odometer photos, too many visits in a week, broken odometers, duplicate cars with plate typos, a plate that moved to another car, and reminders (about a third of customers come back).
+- **demo:** 3 Lahore garages and three car stories: `LEA-1234` Corolla (clean history), `LEB-5678` Civic (92,400 → 61,300 km rollback), `LEC-9012` City (accident repairs with before/after photos).
+- **Team logins:** `+923000000001` (super admin), `+923000000002` (ops), `+923000000003` (support).
+- **Same data every run,** ids included. Dates are relative to today, so queues stay current.
+- **Never production:** refuses when `NODE_ENV=production` or the database or host name contains "prod". A database on another machine (staging) also needs `SEED_ALLOW_REMOTE=true`; reset never runs there.
+- Photo rows point at storage keys under `seed/`, but no image files are uploaded yet (see db/08).
+
 ## Garage data is protected by row-level security (db/07)
 
 `customers`, `jobs` (and their items, photos and flags), `reminders` and `garage_members` belong to one garage. Connected as `carfax_app`, **every query on them must run inside a scope helper**, or it sees no rows at all:

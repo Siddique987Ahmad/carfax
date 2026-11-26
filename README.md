@@ -38,7 +38,7 @@ The apps and packages are added one plan at a time, so some folders are still em
 ```sh
 pnpm install
 pnpm env:init   # copies every .env.example to .env (never overwrites)
-pnpm services:up && pnpm db:migrate && pnpm db:provision-app-user
+pnpm services:up && pnpm db:reset && pnpm db:provision-app-user   # local database with dev data
 pnpm dev        # starts the local services, then every app
 ```
 

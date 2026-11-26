@@ -17,7 +17,11 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "db:provision-app-user": "node scripts/provision-app-user.mjs"
+    "db:provision-app-user": "node scripts/provision-app-user.mjs",
+    "db:seed": "tsx seed/run.ts dev",
+    "db:seed:demo": "tsx seed/run.ts demo",
+    "db:reset": "tsx seed/run.ts reset",
+    "db:reset:demo": "tsx seed/run.ts reset demo"
   },
   "dependencies": {
     "@carfax/shared": "workspace:*",
@@ -28,6 +32,7 @@
   },
   "devDependencies": {
     "@types/pg": "8.23.1",
-    "drizzle-kit": "0.31.11"
+    "drizzle-kit": "0.31.11",
+    "tsx": "4.23.15"
   }
 }
