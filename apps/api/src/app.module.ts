@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { getConfig } from './config';
 import { DbModule } from './db/db.module';
 import { AllExceptionsFilter } from './errors/exception.filter';
+import { GaragesModule } from './garages/garages.module';
 import { HealthController } from './health/health.controller';
 import { loggerParams } from './logging';
 import { MessagingModule } from './messaging/messaging.module';
@@ -22,7 +23,14 @@ export interface AppModuleOptions {
 }
 
 @Module({
-  imports: [SentryModule.forRoot(), DbModule, RedisModule, MessagingModule, AuthModule],
+  imports: [
+    SentryModule.forRoot(),
+    DbModule,
+    RedisModule,
+    MessagingModule,
+    AuthModule,
+    GaragesModule,
+  ],
   controllers: [HealthController],
   providers: [
     // Every route must declare who may call it (api/04); routes without a rule are refused.

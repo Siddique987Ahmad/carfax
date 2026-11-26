@@ -8,7 +8,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { and, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { TokenService } from '../auth/token.service';
 import { DB } from '../db/db.module';
 import { AppError } from '../errors/app-error';
@@ -59,27 +59,13 @@ export class AccessGuard implements CanActivate {
       return true;
     }
 
-    // Garage routes: which garage, and is the caller still a member with the right role?
-    const requested = req.headers['x-garage-id'];
-    let garageId: string;
-    if (typeof requested === 'string' && requested !== '') {
-      if (!UUID.test(requested))
-        throw new AppError('BAD_REQUEST', 400, 'X-Garage-Id is not a garage id');
-      garageId = requested;
-    } else if (req.user.garages.length === 1) {
-      garageId = req.user.garages[0]!.garageId;
-    } else if (req.user.garages.length === 0) {
-      throw new AppError('FORBIDDEN', 403, 'You are not a member of any garage');
-    } else {
-      throw new AppError('GARAGE_REQUIRED', 400, 'You are in several garages: send X-Garage-Id', {
-        garages: req.user.garages.map((g) => g.garageId),
-      });
-    }
-
+    // Garage routes: which garage, and is the caller still a member with the right role? Read from
+    // the database, not the token, so a new garage or a removed mechanic counts at once.
     const userId = req.user.id;
-    const [membership] = await withSystem(this.db, (tx) =>
+    const memberships = await withSystem(this.db, (tx) =>
       tx
         .select({
+          garageId: schema.garageMembers.garageId,
           role: schema.garageMembers.role,
           status: schema.garages.status,
           isActive: schema.users.isActive,
@@ -87,11 +73,26 @@ export class AccessGuard implements CanActivate {
         .from(schema.garageMembers)
         .innerJoin(schema.garages, eq(schema.garages.id, schema.garageMembers.garageId))
         .innerJoin(schema.users, eq(schema.users.id, schema.garageMembers.userId))
-        .where(
-          and(eq(schema.garageMembers.garageId, garageId), eq(schema.garageMembers.userId, userId)),
-        ),
+        .where(eq(schema.garageMembers.userId, userId)),
     );
-    if (!membership) throw new AppError('FORBIDDEN', 403, 'You are not a member of this garage');
+
+    const requested = req.headers['x-garage-id'];
+    let membership: (typeof memberships)[number] | undefined;
+    if (typeof requested === 'string' && requested !== '') {
+      if (!UUID.test(requested))
+        throw new AppError('BAD_REQUEST', 400, 'X-Garage-Id is not a garage id');
+      membership = memberships.find((m) => m.garageId === requested);
+      if (!membership) throw new AppError('FORBIDDEN', 403, 'You are not a member of this garage');
+    } else if (memberships.length === 1) {
+      membership = memberships[0]!;
+    } else if (memberships.length === 0) {
+      throw new AppError('FORBIDDEN', 403, 'You are not a member of any garage');
+    } else {
+      throw new AppError('GARAGE_REQUIRED', 400, 'You are in several garages: send X-Garage-Id', {
+        garages: memberships.map((m) => m.garageId),
+      });
+    }
+    const garageId = membership.garageId;
     if (!membership.isActive) throw new AppError('FORBIDDEN', 403, 'This account is disabled');
     if (!canInGarage(membership.role, rule.permission)) {
       throw new AppError('FORBIDDEN', 403, 'Your role in this garage does not allow this');

@@ -88,9 +88,10 @@ jobs:
       - name: Lint root config and scripts
         run: pnpm exec eslint --max-warnings=0 eslint.config.mjs scripts
 
-      # Includes the Urdu translation check (packages/i18n tests).
-      - name: Lint, type-check and test packages
-        run: pnpm turbo run lint typecheck test ${{ steps.scope.outputs.filter }}
+      # Includes the Urdu translation check (packages/i18n tests). build catches what only shows when
+      # bundling, such as the API's OpenAPI generation (api/05).
+      - name: Lint, type-check, test and build packages
+        run: pnpm turbo run lint typecheck test build ${{ steps.scope.outputs.filter }}
 
       # Fails if someone changed the database schema without committing the migration,
       # or if the committed migrations are inconsistent (packages/db/scripts/check-migrations.mjs).

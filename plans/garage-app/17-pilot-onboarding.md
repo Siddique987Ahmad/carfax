@@ -6,6 +6,7 @@ Status: planned · Phase: pre-pilot · Depends on: garage-app/16
 Setting up a garage on the first visit takes under 30 minutes, and the owner and mechanics know how to log a job before we leave.
 
 ## Decisions
+- **Approve the garage during the visit** (from api/05): a pending garage can set up its profile and staff but can't log jobs until ops approve it (admin/08). Until the admin panel exists, approve it directly in the database as ops, with an audit entry.
 - **We install the app ourselves,** as the product doc's pilot plan says. The app supports that with a checklist rather than a long tutorial.
 - **A practice mode:** the first job can be a practice job, marked as practice and never synced or used in reports, so mechanics can try without fear of mistakes.
 - **A 3-screen intro on first launch,** in Urdu first, focused on money: reminders bring customers back, a professional bill on WhatsApp, and it's free. The product doc says to lead with money, not data.

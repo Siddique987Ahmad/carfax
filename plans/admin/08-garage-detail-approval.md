@@ -6,6 +6,7 @@ Status: planned · Phase: pre-pilot · Depends on: admin/07
 Ops can open a workshop, check that it's real, and approve or suspend it with a reason.
 
 ## Decisions
+- **From api/05:** pending garages can't log jobs (`GARAGE_PENDING`), so approval is what lets a garage start. In the pilot, approve on site during onboarding (garage-app/17). Garage creation and staff changes are already in the audit log (`garage.create`, `garage.member.add`, `garage.member.remove`).
 - **Approve and suspend need a reason,** stored in the audit log. Suspend also needs a reason the garage will see.
 - **Suspending stops new jobs from syncing** but keeps old jobs. Whether old jobs stay in reports is a separate call per case (see admin/15).
 - **Location check:** show the garage's map pin next to the GPS points of its recent odometer photos. If they're far apart, that's a warning sign.
