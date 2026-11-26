@@ -40,3 +40,24 @@ export function normaliseChassisNo(input: string): string | null {
   if (!/[0-9]/.test(key)) return null;
   return key;
 }
+
+/**
+ * Normalise a Pakistani mobile number to the stored login format '+923XXXXXXXXX' (users.phone, db/02).
+ * Accepts '0300 1234567', '0300-1234567', '+92 300 1234567', '923001234567', '00923001234567',
+ * '3001234567' and Urdu digits. Returns null for anything that isn't a Pakistani mobile number
+ * (landlines and foreign numbers can't receive the login code).
+ */
+export function normalisePakistanMobile(input: string): string | null {
+  const digits = toAsciiDigits(input).replace(/[^0-9]/g, '');
+  const national = digits.startsWith('0092')
+    ? digits.slice(4)
+    : digits.startsWith('92')
+      ? digits.slice(2)
+      : digits.startsWith('0')
+        ? digits.slice(1)
+        : digits;
+  return /^3[0-9]{9}$/.test(national) ? `+92${national}` : null;
+}
+
+/** The stored mobile format, also enforced by a CHECK on users.phone. */
+export const PAKISTAN_MOBILE_PATTERN = /^\+923[0-9]{9}$/;

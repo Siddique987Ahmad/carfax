@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { normaliseChassisNo, normaliseRegNo } from './identifiers';
+import {
+  normaliseChassisNo,
+  normalisePakistanMobile,
+  normaliseRegNo,
+  PAKISTAN_MOBILE_PATTERN,
+} from './identifiers';
 
 describe('normaliseRegNo', () => {
   it.each([
@@ -37,5 +42,34 @@ describe('normaliseChassisNo', () => {
 
   it.each([[''], ['ABC12'], ['ABCDEFGH'], ['X'.repeat(29) + '12']])('rejects %j', (input) => {
     expect(normaliseChassisNo(input)).toBeNull();
+  });
+});
+
+describe('normalisePakistanMobile', () => {
+  it.each([
+    ['03001234567', '+923001234567'],
+    ['0300-1234567', '+923001234567'],
+    ['0300 123 4567', '+923001234567'],
+    ['+92 300 1234567', '+923001234567'],
+    ['+92-300-1234567', '+923001234567'],
+    ['923001234567', '+923001234567'],
+    ['00923001234567', '+923001234567'],
+    ['3001234567', '+923001234567'],
+    ['۰۳۰۰۱۲۳۴۵۶۷', '+923001234567'],
+  ])('%s -> %s', (input, expected) => {
+    const result = normalisePakistanMobile(input);
+    expect(result).toBe(expected);
+    expect(result).toMatch(PAKISTAN_MOBILE_PATTERN);
+  });
+
+  it.each([
+    [''],
+    ['042-35761234'], // Lahore landline
+    ['0300123456'], // one digit short
+    ['030012345678'], // one digit long
+    ['+44 7700 900123'], // UK
+    ['abc'],
+  ])('rejects %j', (input) => {
+    expect(normalisePakistanMobile(input)).toBeNull();
   });
 });

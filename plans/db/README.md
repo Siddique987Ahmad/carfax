@@ -8,7 +8,7 @@ Each plan adds one group of tables (or one safety feature) with its migration, Z
 | # | Plan | Status |
 |---|---|---|
 | 01 | [Drizzle setup, migrations and client](01-drizzle-setup.md) | done |
-| 02 | [Users, roles and admin login data](02-users-and-roles.md) | planned |
+| 02 | [Users, roles and admin login data](02-users-and-roles.md) | done |
 | 03 | [Garages, staff and customers](03-garages-members-customers.md) | planned |
 | 04 | [Cars](04-cars.md) | planned |
 | 05 | [Jobs, work items, photos, flags and reminders](05-jobs-and-reminders.md) | planned |
@@ -34,7 +34,7 @@ Each plan adds one group of tables (or one safety feature) with its migration, Z
 - **Photos:** `lat`, `lng` and `gps_accuracy_m` on `job_photos`. `job_flags` gets `created_at` and `details` (db/05).
 - **Sync:** synced tables get `updated_at` triggers and `deleted_at` soft deletes for sync pulls (db/03, db/04, db/05).
 - **Audit log:** `audit_logs.note`, plus separate database users, so the app can't edit the audit log or skip row-level security (db/06).
-- **New tables:** `otp_codes`, `searches`, `report_snapshot` on orders, and `payment_callbacks` (db/02, db/11).
+- **New tables:** `searches`, `report_snapshot` on orders, and `payment_callbacks` (db/11). Login codes are in Redis, not a table (db/02, api/03).
 
 ## Where the admin plans' database changes live
 | Change | Needed by | db plan |
