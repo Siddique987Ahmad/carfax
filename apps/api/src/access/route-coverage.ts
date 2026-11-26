@@ -29,3 +29,14 @@ export function routesWithoutAccessRule(app: INestApplication): string[] {
   }
   return missing.sort();
 }
+
+/** The names of every controller registered in the running app. */
+export function registeredControllers(app: INestApplication): Set<string> {
+  const names = new Set<string>();
+  for (const module of app.get(ModulesContainer).values()) {
+    for (const wrapper of module.controllers.values()) {
+      if (wrapper.metatype) names.add(wrapper.metatype.name);
+    }
+  }
+  return names;
+}

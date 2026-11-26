@@ -10,7 +10,9 @@ import {
   Public,
   SignedIn,
 } from '../src/access/access.decorators';
-import { routesWithoutAccessRule } from '../src/access/route-coverage';
+import { readdirSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { registeredControllers, routesWithoutAccessRule } from '../src/access/route-coverage';
 import { DB } from '../src/db/db.module';
 import { createCar, createGarage, createJob, createUser } from './factories';
 import { startTestApp, type TestApp } from './harness';
@@ -231,6 +233,26 @@ describe('route coverage', () => {
     const real = await startTestApp();
     try {
       expect(routesWithoutAccessRule(real.app)).toEqual([]);
+    } finally {
+      await real.close();
+    }
+  });
+
+  it('every controller in the code is registered in the app', async () => {
+    // Catches a module that was written and imported but never added to AppModule (api/06).
+    const src = join(__dirname, '../src');
+    const declared = (readdirSync(src, { recursive: true }) as string[])
+      .filter((f) => f.endsWith('.controller.ts'))
+      .flatMap((f) =>
+        [...readFileSync(join(src, f), 'utf8').matchAll(/export class (\w+Controller)\b/g)].map(
+          (m) => m[1]!,
+        ),
+      );
+    expect(declared.length).toBeGreaterThan(3);
+    const real = await startTestApp();
+    try {
+      const registered = registeredControllers(real.app);
+      expect(declared.filter((name) => !registered.has(name))).toEqual([]);
     } finally {
       await real.close();
     }
