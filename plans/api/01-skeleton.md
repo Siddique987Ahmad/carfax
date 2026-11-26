@@ -1,6 +1,6 @@
 # api/01 — NestJS skeleton
 
-Status: planned · Phase: pre-pilot · Depends on: setup/01, db: Drizzle setup
+Status: done (Nov 27, 2026) · Phase: pre-pilot · Depends on: setup/01, db: Drizzle setup
 
 ## Goal
 An API that starts, connects to Postgres through Drizzle, validates input with the shared Zod schemas and publishes its OpenAPI spec, so every later module only adds routes.
@@ -12,6 +12,19 @@ An API that starts, connects to Postgres through Drizzle, validates input with t
 - **OpenAPI generated from the Zod schemas** (e.g. nestjs-zod or zod-to-openapi) and written to `openapi.json` at build time. `packages/api-client` is generated from this file (admin/03).
 - **One error format** for every failure: `{ error: { code, message, details? } }`, with stable `code` strings the apps can translate into Urdu.
 - **Structured JSON logs** (pino) with a request ID, and **Sentry** for errors. Phone numbers and OTPs are never logged.
+- **Built with these decisions and fixes:**
+  - **NestJS 11, not 12.** NestJS 12 is out (Aug 2026), but nestjs-zod 5.6 supports only NestJS 11 and Swagger 11. Versions: NestJS 11.2.10, @nestjs/swagger 11.4.8, nestjs-zod 5.6.0, nestjs-pino 5.3.1, @sentry/nestjs 11.12.0, ioredis 6.0.0.
+  - **Bundled with tsup + SWC into `dist/main.js` (CommonJS).** NestJS needs decorator metadata, which esbuild/tsx can't emit, and Node can't run the `@carfax/*` TypeScript source; tsup compiles them into the bundle (as setup/04 planned).
+  - **The API refuses to start as a table owner** (it checks `current_user` at startup), and config refuses `DATABASE_URL` equal to `MIGRATION_DATABASE_URL`: the owner would bypass row-level security (db/06, db/07).
+  - **Errors** include a `requestId`: `{ error: { code, message, details?, requestId } }`. Codes are `ERROR_CODES` in `@carfax/shared`. Validation details give path and reason only, never the submitted value.
+  - **Phone numbers can't reach logs or Sentry:** bodies aren't logged; sensitive query values are scrubbed; and every log line and Sentry error message is passed through `redactPhoneNumbers()` (new in `@carfax/shared`). Found while testing: a thrown error's message carried a phone number into the log, as a Postgres duplicate-key error would.
+  - **Sentry 11 collects bodies, headers, cookies, query and database values by default.** All switched off with `dataCollection`; checked against a local fake Sentry server: the event arrives with the `request_id` tag, no body, no token, phone redacted.
+  - **openapi.json is generated in preview mode,** with no database, Redis or environment (found when the Docker build failed: the logger read the config too early). It's build output, not committed. A typed client was generated from it as a check.
+  - **Swagger UI (`/docs`) only outside production;** health checks aren't logged.
+  - **`pnpm dev` migrates first** (Turborepo: `@carfax/api#dev` depends on `@carfax/db#db:migrate`).
+  - **Turborepo 2 runs tasks in strict environment mode,** so variables set in CI never reached the tests (found here; CI's database tests have most likely failed since db/01). `globalPassThroughEnv` in `turbo.json` now lists them. Proven with a CI simulation: fresh Postgres, no `.env`, fails without the fix and passes with it.
+  - **pnpm install scripts:** `@swc/core` allowed (its binary); `@scarf/scarf` denied (install analytics pulled in by Swagger UI).
+  - **Docker:** multi-stage, non-root `node` user, health check; 443 MB, mostly NestJS, Swagger UI and Sentry (worth slimming before production).
 
 ## Scope
 **In:**
@@ -36,13 +49,15 @@ An API that starts, connects to Postgres through Drizzle, validates input with t
 8. Dockerfile (multi-stage, non-root user).
 
 ## Files and folders touched
-- `apps/api/*`, `packages/shared/src/errors.ts`
+- `apps/api/*` (src, `tsup.config.ts`, `Dockerfile`, `README.md`), `.dockerignore`
+- `packages/shared/src/errors.ts`, `packages/shared/src/utils/identifiers.ts` (`redactPhoneNumbers`)
+- `turbo.json` (passthrough env, migrate before dev), `pnpm-workspace.yaml`, `.env.example`, `.gitignore`
 
 ## Done when
-- [ ] `pnpm --filter api dev` starts and `GET /v1/health` reports DB and Redis as up
-- [ ] An invalid request body returns 400 in the standard error format
-- [ ] `openapi.json` is generated on build and the API client builds from it
-- [ ] A thrown error appears in Sentry with the request ID; no phone numbers in logs
+- [x] `pnpm --filter api dev` starts and `GET /v1/health` reports DB and Redis as up (and 503 within 0.1 s when Redis is down; also checked from the Docker image)
+- [x] An invalid request body returns 400 in the standard error format (checked with a temporary route, removed afterwards; api/02 adds permanent tests)
+- [x] `openapi.json` is generated on build and the API client builds from it (generated with openapi-typescript as a check; the real `packages/api-client` is admin/03)
+- [x] A thrown error appears in Sentry with the request ID; no phone numbers in logs (local fake Sentry server; log and event both scrubbed)
 
 ## Open questions
 - Hosting region decides the DB latency; confirm in the setup deployment plan.

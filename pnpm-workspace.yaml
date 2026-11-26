@@ -7,3 +7,7 @@ packages:
 # esbuild: installs its platform binary; drizzle-kit uses it to load drizzle.config.ts.
 allowBuilds:
   esbuild: true
+  # @swc/core: installs its platform binary; tsup uses it for NestJS decorator metadata (api/01).
+  '@swc/core': true
+  # @scarf/scarf: install analytics pulled in by swagger-ui. Denied: it reports installs to its vendor.
+  '@scarf/scarf': false

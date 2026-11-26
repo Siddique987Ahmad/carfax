@@ -11,7 +11,7 @@ What the garage app needs for the pilot: sign-in, garages, cars, photos, sync, b
 
 | # | Plan | Status |
 |---|---|---|
-| 01 | [NestJS skeleton](01-skeleton.md) | planned |
+| 01 | [NestJS skeleton](01-skeleton.md) | done |
 | 02 | [Test setup and strategy](02-testing.md) | planned |
 | 03 | [Phone OTP login and tokens](03-otp-auth.md) | planned |
 | 04 | [Role guards and garage scoping](04-guards-and-scoping.md) | planned |

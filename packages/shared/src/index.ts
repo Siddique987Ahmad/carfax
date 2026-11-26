@@ -4,3 +4,4 @@ export * from './constants/statuses';
 export * from './constants/work-types';
 export * from './schemas/common';
 export * from './utils/identifiers';
+export * from './errors';

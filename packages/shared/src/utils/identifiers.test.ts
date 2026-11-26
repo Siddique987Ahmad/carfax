@@ -3,6 +3,7 @@ import {
   normaliseChassisNo,
   normalisePakistanMobile,
   normaliseRegNo,
+  redactPhoneNumbers,
   PAKISTAN_MOBILE_PATTERN,
 } from './identifiers';
 
@@ -71,5 +72,26 @@ describe('normalisePakistanMobile', () => {
     ['abc'],
   ])('rejects %j', (input) => {
     expect(normalisePakistanMobile(input)).toBeNull();
+  });
+});
+
+describe('redactPhoneNumbers', () => {
+  it.each([
+    ['Key (phone)=(+923001234567) already exists.', 'Key (phone)=([phone]) already exists.'],
+    ['call 0300-1234567 or 0300 1234567', 'call [phone] or [phone]'],
+    ['00923001234567 and 923001234567', '[phone] and [phone]'],
+    ['+92 300 1234567', '[phone]'],
+    ['{"phone":"03211234567"}', '{"phone":"[phone]"}'],
+  ])('%s', (input, expected) => {
+    expect(redactPhoneNumbers(input)).toBe(expected);
+  });
+
+  it.each([
+    ['request test-req-12345678'],
+    ['odometer 84250 km, total Rs. 12500'],
+    ['plate LEA1234, chassis NZE1610123456'],
+    ['id 52f60290-6b19-45b0-a43c-e9c8d6fc2df2'],
+  ])('leaves other numbers alone: %s', (input) => {
+    expect(redactPhoneNumbers(input)).toBe(input);
   });
 });

@@ -6,6 +6,7 @@ Status: planned · Phase: pre-pilot · Depends on: api/01
 Every later API item ships with tests that run against a real Postgres, so sync, payments and privacy rules can't break silently.
 
 ## Decisions
+- **From api/01:** reuse `createApp()` (`apps/api/src/app.ts`) to boot the app in tests, and `createTestDatabase()` from `@carfax/db` for a throwaway migrated database with an app-user connection. Add the validation and 500-error checks that api/01 did by hand (a test-only controller is fine). Run tests through Turborepo, whose `globalPassThroughEnv` must list any new variable they need.
 - **Vitest + Supertest.** Vitest is fast and works with ESM; Supertest calls the real NestJS app over HTTP.
 - **End-to-end tests against a real Postgres** in Docker, not mocks. Most of the risk in this API is in SQL (sync, merges, row-level security).
 - **Each test file gets a clean database:** migrations run once per test run, tables are truncated between files.

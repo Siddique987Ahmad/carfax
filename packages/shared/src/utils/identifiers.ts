@@ -61,3 +61,17 @@ export function normalisePakistanMobile(input: string): string | null {
 
 /** The stored mobile format, also enforced by a CHECK on users.phone. */
 export const PAKISTAN_MOBILE_PATTERN = /^\+923[0-9]{9}$/;
+
+/**
+ * Pakistani mobile numbers in free text, in any common spelling: +923001234567, 923001234567,
+ * 00923001234567, 03001234567, 0300-1234567, 0300 1234567, +92 300 1234567.
+ */
+const PHONE_IN_TEXT = /(?<![\dA-Za-z])(?:(?:\+|00)?92[\s-]?|0)?3\d{2}[\s-]?\d{7}(?!\d)/g;
+
+/**
+ * Replaces Pakistani mobile numbers in text with '[phone]'. For logs and error reports, where a
+ * number can slip in through an error message (e.g. Postgres: "Key (phone)=(+92300…) already exists").
+ */
+export function redactPhoneNumbers(text: string): string {
+  return text.replace(PHONE_IN_TEXT, '[phone]');
+}
