@@ -6,6 +6,7 @@ Status: planned · Phase: pre-pilot · Depends on: garage-app/03, api: OTP login
 Owners and mechanics sign in with their phone number and a one-time code, and stay signed in for weeks, even while offline.
 
 ## Decisions
+- **From api/03:** handle `OTP_INVALID` (show `details.attemptsLeft`), `OTP_EXPIRED`/`OTP_LOCKED` (offer a new code) and `RATE_LIMITED` (`details.retryAfterSeconds`). **Send one refresh at a time:** queue other requests while a refresh is in flight. The server forgives one retry within 60 seconds of a lost response, but parallel refreshes with the same token look like theft and sign the device out.
 - **Phone + 6-digit OTP,** WhatsApp first with SMS fallback, as in the tech doc.
 - **Tokens in `expo-secure-store`,** never in plain storage.
 - **Offline use never needs a valid token.** The app keeps working with an expired access token and refreshes it once online. Only syncing needs the server.

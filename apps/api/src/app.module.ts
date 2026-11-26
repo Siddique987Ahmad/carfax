@@ -4,11 +4,13 @@ import { SentryModule } from '@sentry/nestjs/setup';
 import { LoggerModule } from 'nestjs-pino';
 import { ZodSerializerInterceptor, ZodValidationPipe } from 'nestjs-zod';
 import type { DestinationStream } from 'pino';
+import { AuthModule } from './auth/auth.module';
 import { getConfig } from './config';
 import { DbModule } from './db/db.module';
 import { AllExceptionsFilter } from './errors/exception.filter';
 import { HealthController } from './health/health.controller';
 import { loggerParams } from './logging';
+import { MessagingModule } from './messaging/messaging.module';
 import { RedisModule } from './redis/redis.module';
 
 export interface AppModuleOptions {
@@ -19,7 +21,7 @@ export interface AppModuleOptions {
 }
 
 @Module({
-  imports: [SentryModule.forRoot(), DbModule, RedisModule],
+  imports: [SentryModule.forRoot(), DbModule, RedisModule, MessagingModule, AuthModule],
   controllers: [HealthController],
   providers: [
     // Every body, query and param with a Zod DTO is checked; failures become VALIDATION_FAILED.

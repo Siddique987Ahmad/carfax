@@ -21,7 +21,9 @@
     "S3_BUCKET_REPORTS",
     "MESSAGING_PROVIDER",
     "PAYMENTS_PROVIDER",
-    "SEED_ALLOW_REMOTE"
+    "SEED_ALLOW_REMOTE",
+    "JWT_SECRET",
+    "OTP_SECRET"
   ],
   "tasks": {
     "build": {

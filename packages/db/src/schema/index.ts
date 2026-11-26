@@ -5,3 +5,4 @@ export * from './garages';
 export * from './cars';
 export * from './jobs';
 export * from './audit';
+export * from './auth';

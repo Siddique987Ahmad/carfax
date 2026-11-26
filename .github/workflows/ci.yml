@@ -25,7 +25,9 @@ env:
   MIGRATION_DATABASE_URL: postgres://carfax:carfax@localhost:5432/carfax
   APP_DB_PASSWORD: carfax-app-local
   REDIS_URL: redis://localhost:6379
-  MESSAGING_PROVIDER: console
+  MESSAGING_PROVIDER: memory
+  JWT_SECRET: ci-only-jwt-secret-not-used-anywhere-else-000
+  OTP_SECRET: ci-only-otp-secret-not-used-anywhere-else-000
   PAYMENTS_PROVIDER: fake
 
 jobs:

@@ -8,6 +8,7 @@ One messaging service sends OTPs from day one, and later bills and reminders, by
 **Pilot decision (Nov 26, 2026):** bills and reminders go out with one tap from the garage's own WhatsApp (`wa.me`, api/12 and api/13). This service sends only **OTPs** in the pilot, which have to be automatic. Bills and reminders switch to it once Meta approves the account.
 
 ## Decisions
+- **The API already sends login codes through a `MessageSender` interface** (api/03: `apps/api/src/messaging/messaging.module.ts`, with `console` and `memory` providers). Build `packages/messaging` with the WhatsApp and SMS providers behind the same `sendLoginCode(phone, code)` shape, then switch the API's module to it; production already refuses `console` and `memory`.
 - **A shared `packages/messaging`,** used by:
   - the API for OTPs, sent straight away because the user is waiting
   - the workers for bills and reminders, sent through the `messages` queue

@@ -6,6 +6,7 @@ Status: planned · Phase: pilot · Depends on: web/07, api/03
 A buyer signs in with their phone number only when they open a report, so we know whose report it is, and can follow up to ask whether they'd pay.
 
 ## Decisions
+- **From api/03:** the refresh token arrives as the `carfax_refresh` httpOnly cookie (path `/v1/auth`), so the website never sees it; call `POST /v1/auth/refresh` with credentials included. The access token (15 minutes) stays in memory, not localStorage.
 - **Login is asked for at the moment of opening a report,** never to search. Every step before that stays open.
 - **Same OTP endpoints as the apps** (api/03), with `audience: "web"`. The first successful login creates a `buyer` user.
 - **Tokens:** the access token is held in memory, and the refresh token is in an httpOnly, Secure, `SameSite=Lax` cookie on the shared parent domain (same plan as admin/06).

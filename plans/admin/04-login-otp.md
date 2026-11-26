@@ -6,6 +6,7 @@ Status: planned · Phase: pre-pilot · Depends on: admin/03, api/03
 Team members sign in with their phone number and a one-time code, and nobody outside the team can get in.
 
 ## Decisions
+- **Built on api/03:** add `admin` to the `auth_audience` enum (db migration) and to `AudienceSchema`; the OTP, token and refresh logic is reused as is. Note that today any user can sign in with the `garage` audience (e.g. the seeded `+923000000001` admin); the admin panel must use the `admin` audience, which is where the staff-only check goes.
 - **Same OTP endpoints as the garage app** (`/auth/otp/request`, `/auth/otp/verify`), with an `audience: "admin"` flag.
 - **Allowed accounts only.** For the admin audience, the API refuses phones that don't belong to an active user with role `admin`, `ops` or `support`. It returns the same response as for a wrong code, so outsiders can't learn which numbers are staff.
 - **Seed the first super admin with a script.** There is no sign-up page for admins.

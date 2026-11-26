@@ -5,6 +5,7 @@ import type Redis from 'ioredis';
 import request from 'supertest';
 import { createApp } from '../src/app';
 import { resetConfigForTests } from '../src/config';
+import { MESSAGING, type MemorySender } from '../src/messaging/messaging.module';
 import { REDIS } from '../src/redis/redis.module';
 
 export interface TestApp {
@@ -13,6 +14,21 @@ export interface TestApp {
   http: ReturnType<typeof request>;
   /** The table owner's connection, for setting up data (bypasses row-level security). */
   db: Awaited<ReturnType<typeof createTestDatabase>>['db'];
+  /** The last login code "sent" to a phone (memory messaging provider). */
+  lastCode(phone: string): string | undefined;
+  /**
+   * Signs a user in through the real code flow and returns a request helper that sends their
+   * access token: `const { http, user } = await t.asUser(phone)`.
+   */
+  asUser(
+    phone: string,
+    audience?: 'garage' | 'web',
+  ): Promise<{
+    http: ReturnType<typeof request.agent>;
+    accessToken: string;
+    refreshToken: string;
+    userId: string;
+  }>;
   /**
    * Every log line the app wrote, as JSON strings. nestjs-pino keeps one root logger per process,
    * so when a file starts several apps, all their logs land in the first app's `logs`: assert on
@@ -38,6 +54,9 @@ export async function startTestApp(
     REDIS_KEY_PREFIX: prefix,
     LOG_LEVEL: 'info',
     SENTRY_DSN: '',
+    MESSAGING_PROVIDER: 'memory',
+    JWT_SECRET: 'test-jwt-secret-0123456789-0123456789',
+    OTP_SECRET: 'test-otp-secret-0123456789-0123456789',
     ...options.env,
   });
   resetConfigForTests();
@@ -49,9 +68,30 @@ export async function startTestApp(
   });
   await app.init();
 
+  const http = request(app.getHttpServer());
+  const lastCode = (phone: string) => app.get<MemorySender>(MESSAGING).lastCode(phone);
+  const asUser: TestApp['asUser'] = async (phone, audience = 'garage') => {
+    await http.post('/v1/auth/otp/request').send({ phone, audience }).expect(200);
+    const res = await http
+      .post('/v1/auth/otp/verify')
+      .send({ phone, audience, code: lastCode(phone) })
+      .expect(200);
+    const agent = request
+      .agent(app.getHttpServer())
+      .set('authorization', `Bearer ${res.body.accessToken}`);
+    return {
+      http: agent,
+      accessToken: res.body.accessToken,
+      refreshToken: res.body.refreshToken,
+      userId: res.body.user.id,
+    };
+  };
+
   return {
     app,
-    http: request(app.getHttpServer()),
+    http,
+    lastCode,
+    asUser,
     db: database.db,
     logs,
     async close() {

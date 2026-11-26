@@ -71,6 +71,13 @@
       "when": 1795725540042,
       "tag": "0009_row_level_security",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1795727918132,
+      "tag": "0010_refresh_tokens",
+      "breakpoints": true
     }
   ]
 }

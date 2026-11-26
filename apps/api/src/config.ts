@@ -19,11 +19,27 @@ const ConfigSchema = z
     REDIS_URL: z.url(),
     /** Prefix for every Redis key. Tests give each file its own, so parallel files can't collide. */
     REDIS_KEY_PREFIX: z.string().default(''),
+    /** Signs access tokens (api/03). At least 32 random characters; from the secret store in real environments. */
+    JWT_SECRET: z.string().min(32),
+    /** Keys the HMAC of login codes in Redis, so a stored hash can't be reversed (api/03). */
+    OTP_SECRET: z.string().min(32),
+    /**
+     * How login codes are delivered. console: printed to the terminal (local only). memory: kept for
+     * tests. WhatsApp and SMS arrive with workers/04 once the business accounts are approved.
+     */
+    MESSAGING_PROVIDER: z.enum(['console', 'memory']).default('console'),
     /** Empty locally: Sentry is off. */
     SENTRY_DSN: z.union([z.literal(''), z.url()]).default(''),
     /** Only to check the app isn't given the owner's connection by mistake. */
     MIGRATION_DATABASE_URL: z.url().optional(),
   })
+  .refine(
+    (c) => c.NODE_ENV !== 'production' || !['console', 'memory'].includes(c.MESSAGING_PROVIDER),
+    {
+      message: 'MESSAGING_PROVIDER console/memory would never deliver login codes in production',
+      path: ['MESSAGING_PROVIDER'],
+    },
+  )
   .refine((c) => c.DATABASE_URL !== c.MIGRATION_DATABASE_URL, {
     message:
       'DATABASE_URL must be the app user (carfax_app), not the migration owner: the owner bypasses row-level security',
