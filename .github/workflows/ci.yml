@@ -20,7 +20,10 @@ permissions:
 env:
   TURBO_TELEMETRY_DISABLED: 1
   # Same values as .env.example, pointing at the service containers below.
-  DATABASE_URL: postgres://carfax:carfax@localhost:5432/carfax
+  # The app user (carfax_app) is created by the migrations; the db tests give it this password.
+  DATABASE_URL: postgres://carfax_app:carfax-app-local@localhost:5432/carfax
+  MIGRATION_DATABASE_URL: postgres://carfax:carfax@localhost:5432/carfax
+  APP_DB_PASSWORD: carfax-app-local
   REDIS_URL: redis://localhost:6379
   MESSAGING_PROVIDER: console
   PAYMENTS_PROVIDER: fake

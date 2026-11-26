@@ -16,7 +16,8 @@
     "db:check": "node scripts/check-migrations.mjs",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "db:provision-app-user": "node scripts/provision-app-user.mjs"
   },
   "dependencies": {
     "@carfax/shared": "workspace:*",

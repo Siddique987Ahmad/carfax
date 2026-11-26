@@ -19,7 +19,16 @@ PostgreSQL schema, migrations and the database client, using Drizzle ORM and dri
 
 `pnpm db:push` applies the schema directly without a migration. Use it only for quick local experiments, never on staging or production. `pnpm db:studio` opens a browser view of the local database.
 
-All commands run from the repo root and read `DATABASE_URL` from `.env` (`pnpm env:init`). The local database comes from `pnpm services:up`.
+All commands run from the repo root and read `.env` (`pnpm env:init`). The local database comes from `pnpm services:up`.
+
+## Two database users
+
+| Variable                 | User                               | Used by                            | Can                                                                                                  |
+| ------------------------ | ---------------------------------- | ---------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `MIGRATION_DATABASE_URL` | the table owner (`carfax` locally) | `db:migrate`, `db:generate`, tests | everything                                                                                           |
+| `DATABASE_URL`           | `carfax_app`                       | the API and workers                | read and write rows; add (not change) audit rows; not delete jobs, cars or plates; not change tables |
+
+**Never point the app at the owner:** Postgres skips row-level security for a table's owner (db/07). The migrations create `carfax_app` without a password; `pnpm db:provision-app-user` lets it log in with `APP_DB_PASSWORD`. On a new environment: run `pnpm db:migrate`, then `pnpm db:provision-app-user`.
 
 ## Using the client
 

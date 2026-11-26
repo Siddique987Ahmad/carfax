@@ -22,7 +22,8 @@
     "db:generate": "pnpm --filter @carfax/db db:generate",
     "db:migrate": "pnpm --filter @carfax/db db:migrate",
     "db:studio": "pnpm --filter @carfax/db db:studio",
-    "db:check": "pnpm --filter @carfax/db db:check"
+    "db:check": "pnpm --filter @carfax/db db:check",
+    "db:provision-app-user": "pnpm --filter @carfax/db db:provision-app-user"
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "3.1169.0",

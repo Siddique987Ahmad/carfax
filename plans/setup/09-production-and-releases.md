@@ -6,6 +6,7 @@ Status: planned · Phase: pre-pilot (by week 9) · Depends on: setup/08
 Production exists before the pilot, since pilot garages log real jobs, and there is a safe, repeatable way to release and roll back.
 
 ## Decisions
+- **Deploy order for the database (db/06):** run `pnpm db:migrate` as the owner (`MIGRATION_DATABASE_URL`), then `pnpm db:provision-app-user` on a new environment or after rotating `APP_DB_PASSWORD`, then start the API and workers with `DATABASE_URL` (the app user).
 - **Production mirrors staging** (same host, region and services), with its own database, Redis, buckets and secrets.
 - **Release by tag,** as in the tech doc: pushing a tag `vX.Y.Z` promotes the exact image already tested on staging.
 - **Migrations are forward-only and backward-compatible.** Add the new thing, switch the code to it, then remove the old thing in a later release. Rolling back code then never needs a database rollback.

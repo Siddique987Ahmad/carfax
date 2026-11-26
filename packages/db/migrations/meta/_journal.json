@@ -50,6 +50,20 @@
       "when": 1795725065783,
       "tag": "0006_jobs_and_reminders",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1795725316402,
+      "tag": "0007_audit_log",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1795725317944,
+      "tag": "0008_app_database_user",
+      "breakpoints": true
     }
   ]
 }

@@ -38,6 +38,7 @@ The apps and packages are added one plan at a time, so some folders are still em
 ```sh
 pnpm install
 pnpm env:init   # copies every .env.example to .env (never overwrites)
+pnpm services:up && pnpm db:migrate && pnpm db:provision-app-user
 pnpm dev        # starts the local services, then every app
 ```
 
@@ -45,11 +46,11 @@ pnpm dev        # starts the local services, then every app
 
 `infra/docker-compose.yml` runs everything the apps need, with no outside accounts:
 
-| Service    | Port | Stands in for          | Local login                            |
-| ---------- | ---- | ---------------------- | -------------------------------------- |
-| PostgreSQL | 5432 | Managed Postgres       | `carfax` / `carfax`, database `carfax` |
-| Redis      | 6379 | Upstash Redis          | none                                   |
-| SeaweedFS  | 8333 | Cloudflare R2 (S3 API) | `carfax` / `carfax-local-secret`       |
+| Service    | Port | Stands in for          | Local login                                                                                        |
+| ---------- | ---- | ---------------------- | -------------------------------------------------------------------------------------------------- |
+| PostgreSQL | 5432 | Managed Postgres       | app: `carfax_app` / `carfax-app-local`; owner (migrations): `carfax` / `carfax`, database `carfax` |
+| Redis      | 6379 | Upstash Redis          | none                                                                                               |
+| SeaweedFS  | 8333 | Cloudflare R2 (S3 API) | `carfax` / `carfax-local-secret`                                                                   |
 
 Private buckets `photos` and `reports` are created on start. OTPs, WhatsApp and SMS messages are printed to the terminal (`MESSAGING_PROVIDER=console`), and payments are faked (`PAYMENTS_PROVIDER=fake`).
 

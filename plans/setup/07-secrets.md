@@ -6,6 +6,7 @@ Status: planned · Phase: pre-pilot · Depends on: setup/03
 Every key and password has one known place, never sits in the repo, and can be changed quickly when someone leaves or a key leaks.
 
 ## Decisions
+- **Database secrets (db/06):** `DATABASE_URL` (app user `carfax_app`), `MIGRATION_DATABASE_URL` (table owner, only for the migration step) and `APP_DB_PASSWORD`. The app's runtime must never receive `MIGRATION_DATABASE_URL`.
 - **Runtime secrets live in each host's secret store** (API/worker host, Vercel, Cloudflare), separately for staging and production, as the tech doc says.
 - **Deploy secrets live in GitHub Actions secrets,** scoped to the staging and production environments.
 - **Team logins** (Meta, payment portals, Play Console, hosting) live in a shared password manager (Bitwarden or 1Password), never in chat.
