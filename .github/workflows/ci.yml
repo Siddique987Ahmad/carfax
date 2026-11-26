@@ -1,0 +1,100 @@
+# Checks every pull request and every push to main (setup/05).
+# Pull requests check only the packages they affect (plus anything that depends on them);
+# pushes to main check everything.
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  # A new push to the same pull request cancels the run still in progress.
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  TURBO_TELEMETRY_DISABLED: 1
+  # Same values as .env.example, pointing at the service containers below.
+  DATABASE_URL: postgres://carfax:carfax@localhost:5432/carfax
+  REDIS_URL: redis://localhost:6379
+  MESSAGING_PROVIDER: console
+  PAYMENTS_PROVIDER: fake
+
+jobs:
+  checks:
+    name: Lint, type-check and test
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+
+    # Real Postgres and Redis, the same versions as infra/docker-compose.yml,
+    # so API and worker tests run against what production uses.
+    services:
+      postgres:
+        image: postgres:16.16-alpine
+        env:
+          POSTGRES_USER: carfax
+          POSTGRES_PASSWORD: carfax
+          POSTGRES_DB: carfax
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U carfax -d carfax"
+          --health-interval 2s --health-timeout 3s --health-retries 30
+      redis:
+        image: redis:7.4.7-alpine
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 2s --health-timeout 3s --health-retries 30
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # Full history, so Turborepo can compare a pull request with main.
+          fetch-depth: 0
+
+      # Installs the pnpm version from package.json's packageManager field.
+      - uses: pnpm/action-setup@v6
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Choose what to check
+        id: scope
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "filter=--affected" >> "$GITHUB_OUTPUT"
+          else
+            echo "filter=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Formatting
+        run: pnpm format:check
+
+      - name: Lint root config and scripts
+        run: pnpm exec eslint --max-warnings=0 eslint.config.mjs scripts
+
+      # Includes the Urdu translation check (packages/i18n tests).
+      - name: Lint, type-check and test packages
+        run: pnpm turbo run lint typecheck test ${{ steps.scope.outputs.filter }}
+
+      # Fails if someone changed the database schema without committing the migration.
+      # Switches on automatically once packages/db exists (db/01).
+      - name: Migration check
+        if: hashFiles('packages/db/drizzle.config.ts') != ''
+        run: |
+          pnpm --filter @carfax/db exec drizzle-kit generate
+          if [ -n "$(git status --porcelain -- packages/db)" ]; then
+            echo "::error::The schema changed but the migration wasn't committed. Run the db generate command and commit the new files."
+            git status --porcelain -- packages/db
+            exit 1
+          fi

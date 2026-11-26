@@ -79,3 +79,7 @@ Run these from the repo root. Turborepo runs each one in every app and package t
 - TypeScript in strict mode everywhere. Each package extends `tsconfig.base.json`.
 - Each package's `eslint.config.mjs` extends the root `eslint.config.mjs`.
 - Secrets never go in git. Only `.env.example` files are committed.
+
+## CI
+
+Every pull request to `main` runs `.github/workflows/ci.yml`: formatting, lint, type-check and tests, with real Postgres and Redis. Pull requests check only the packages they affect; pushes to `main` check everything.
