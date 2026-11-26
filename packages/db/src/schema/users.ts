@@ -12,11 +12,10 @@ import {
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
+import { createdAt, updatedAt } from './columns';
 
 /** Platform-wide roles (db/02). Garage roles (owner, mechanic) live in garage_members (db/03). */
 export const platformRole = pgEnum('platform_role', PLATFORM_ROLES);
-
-const createdAt = () => timestamp({ withTimezone: true }).notNull().defaultNow();
 
 /** Everyone who logs in: garage staff, buyers, dealers, car owners and the team. */
 export const users = pgTable(
@@ -33,10 +32,7 @@ export const users = pgTable(
     totpEnabledAt: timestamp({ withTimezone: true }),
     lastLoginAt: timestamp({ withTimezone: true }),
     createdAt: createdAt(),
-    updatedAt: timestamp({ withTimezone: true })
-      .notNull()
-      .defaultNow()
-      .$onUpdate(() => new Date()),
+    updatedAt: updatedAt(),
   },
   (t) => [
     check('users_phone_format', sql`${t.phone} ~ '^\\+923[0-9]{9}$'`),

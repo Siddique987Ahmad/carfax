@@ -1,6 +1,6 @@
 # db/03 — Garages, staff and customers
 
-Status: planned · Phase: pre-pilot · Depends on: db/02
+Status: done (Nov 27, 2026) · Phase: pre-pilot · Depends on: db/02
 
 ## Goal
 Tables for workshops, their staff, and each workshop's private customer list.
@@ -12,6 +12,16 @@ Tables for workshops, their staff, and each workshop's private customer list.
 - **Customers belong to one garage** and are never shared between garages. `UNIQUE (garage_id, phone)` comes from the tech doc. Reports never read this table.
 - **Sync support:** the garage app syncs customers, so `customers` has `updated_at` (set by a database trigger, so it's correct however the row was changed) and `deleted_at` (soft delete, so the phone learns about deletions).
 - **Customer IDs can come from the phone,** because a mechanic can add a customer while offline.
+- **Built with these additions:**
+  - "One customer per phone per garage" ignores deleted customers (a partial unique index), so a returning customer can be added again.
+  - Customer phones use the users' format (`+923XXXXXXXXX`, CHECK), because bills and reminders go to WhatsApp. The phone is optional, since deleting a customer clears it (api/11).
+  - CHECKs on `trust_score` (0–100) and on latitude and longitude ranges.
+  - The owner is also a `garage_members` row with role `owner`, so "who works here" is one query.
+  - `garages.owner_id` and `customers.garage_id` can't be deleted out from under their rows; garages are suspended, not deleted.
+  - The `set_updated_at()` trigger also covers `users`, replacing the app-side update from db/02, so there's one mechanism everywhere.
+  - A test fails if any table with an `updated_at` column lacks the trigger, so later tables can't forget it.
+  - Shared column helpers (`createdAt`, `updatedAt`, `deletedAt` in `schema/columns.ts`) for every later table.
+- **Sync pitfall handed to api/09:** `updated_at` is the transaction's start time, so a pull must overlap the previous one slightly or it can skip a change that was still being saved.
 
 ## Scope
 **In:**
@@ -32,12 +42,13 @@ Tables for workshops, their staff, and each workshop's private customer list.
 4. Export the Zod schemas.
 
 ## Files and folders touched
-- `packages/db/src/schema/garages.ts`, `packages/db/migrations/*`
+- `packages/db/src/schema/garages.ts`, `packages/db/src/schema/columns.ts`, `packages/db/src/schema/users.ts`, `packages/db/src/zod.ts`
+- `packages/db/migrations/0002_garages_members_customers.sql`, `0003_updated_at_triggers.sql` (hand-written)
 
 ## Done when
-- [ ] Updating a customer changes `updated_at` even when done in raw SQL
-- [ ] The same phone can be a customer at two garages, but not twice at one
-- [ ] A garage can't exist without an owner
+- [x] Updating a customer changes `updated_at` even when done in raw SQL
+- [x] The same phone can be a customer at two garages, but not twice at one (and a deleted customer doesn't block re-adding)
+- [x] A garage can't exist without an owner (missing owner and unknown owner both refused)
 
 ## Open questions
 - None

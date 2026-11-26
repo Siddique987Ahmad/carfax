@@ -10,6 +10,7 @@ Each phone in a garage gets what changed since it last synced: jobs logged on th
 - **The cursor is a server timestamp**, never the phone's clock, which may be wrong.
 - **Only the caller's garage data**, through `withGarage` and row-level security.
 - **Every synced table has `updated_at`**, updated by a database trigger, and soft deletes (`deleted_at`), so deletions reach other phones. Add both to the db plans.
+- **Overlap each pull to avoid missed changes** (found in db/03). `updated_at` is set when a transaction *starts*, but the row only becomes visible when it *commits*. A change still being saved while a phone syncs can get a timestamp just before the returned `timestamp`, and would be skipped forever. So the pull returns `timestamp` = query start minus 60 seconds, and the next pull asks for `updated_at > since` again from there. The phone receives a few rows twice, which WatermelonDB applies safely (same IDs).
 - **Cars come along only if the garage has a job on them**, never the whole car table.
 - **First sync on a new phone** (`since` empty) returns the last 12 months of the garage's data, in pages.
 
