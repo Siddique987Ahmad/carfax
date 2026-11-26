@@ -12,6 +12,7 @@ Locally: `http://localhost:3000/v1/health`, and interactive docs at `http://loca
 
 ## Rules for every module
 
+- **Access:** every route declares exactly one rule: `@Public()`, `@SignedIn()`, `@GaragePermission('jobs.create')` or `@AdminPermission('audit.view')` (api/04). A route without one is refused and fails the route-coverage test. Garage routes get `@CurrentGarage()` (id, role, status); membership and admin roles are checked against the database on every request.
 - **Database:** inject it with `@InjectDb()`. The API connects as `carfax_app` (db/06) and refuses to start as a table owner.
 - **Every query on garage data goes through `withGarage` or `withSystem`** from `@carfax/db` (db/07). Without one, row-level security returns no rows.
 - **Validation:** request bodies, queries and params use Zod DTOs (`createZodDto`) from shared schemas. Invalid input becomes `VALIDATION_FAILED`.

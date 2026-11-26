@@ -13,6 +13,12 @@ export const ERROR_CODES = [
   'NOT_FOUND',
   'CONFLICT',
   'RATE_LIMITED',
+  /** You're in several garages: say which one with the X-Garage-Id header (api/04). */
+  'GARAGE_REQUIRED',
+  /** The garage is waiting for approval: it can be viewed and set up, but no jobs yet. */
+  'GARAGE_PENDING',
+  /** The garage is suspended: it can be viewed, not changed. */
+  'GARAGE_SUSPENDED',
   /** Wrong code; details.attemptsLeft says how many tries remain (api/03). */
   'OTP_INVALID',
   /** No valid code: expired, already used, or never requested. Ask for a new one. */

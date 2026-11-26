@@ -18,7 +18,8 @@ export interface TestApp {
   lastCode(phone: string): string | undefined;
   /**
    * Signs a user in through the real code flow and returns a request helper that sends their
-   * access token: `const { http, user } = await t.asUser(phone)`.
+   * access token: `const { http, userId } = await t.asUser(phone)`. Reused per phone and audience,
+   * so for refresh-rotation tests use a fresh phone each time.
    */
   asUser(
     phone: string,
@@ -70,21 +71,27 @@ export async function startTestApp(
 
   const http = request(app.getHttpServer());
   const lastCode = (phone: string) => app.get<MemorySender>(MESSAGING).lastCode(phone);
+  // One sign-in per phone and audience, reused: the real API allows only 3 codes per phone per
+  // 15 minutes, and access is re-checked against the database on every request anyway.
+  const sessions = new Map<string, Awaited<ReturnType<TestApp['asUser']>>>();
   const asUser: TestApp['asUser'] = async (phone, audience = 'garage') => {
+    const cached = sessions.get(`${audience}:${phone}`);
+    if (cached) return cached;
     await http.post('/v1/auth/otp/request').send({ phone, audience }).expect(200);
     const res = await http
       .post('/v1/auth/otp/verify')
       .send({ phone, audience, code: lastCode(phone) })
       .expect(200);
-    const agent = request
-      .agent(app.getHttpServer())
-      .set('authorization', `Bearer ${res.body.accessToken}`);
-    return {
-      http: agent,
+    const session = {
+      http: request
+        .agent(app.getHttpServer())
+        .set('authorization', `Bearer ${res.body.accessToken}`),
       accessToken: res.body.accessToken,
       refreshToken: res.body.refreshToken,
       userId: res.body.user.id,
     };
+    sessions.set(`${audience}:${phone}`, session);
+    return session;
   };
 
   return {

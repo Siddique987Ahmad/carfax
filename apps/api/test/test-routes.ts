@@ -4,6 +4,7 @@ import { PakistanMobileSchema } from '@carfax/shared';
 import { Body, Controller, Get, Module, Post, Query } from '@nestjs/common';
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
+import { Public } from '../src/access/access.decorators';
 import { AppError } from '../src/errors/app-error';
 
 class SignUpDto extends createZodDto(
@@ -11,6 +12,7 @@ class SignUpDto extends createZodDto(
 ) {}
 
 @Controller('test')
+@Public()
 class TestRoutesController {
   @Post('sign-up')
   signUp(@Body() body: SignUpDto) {

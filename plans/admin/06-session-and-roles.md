@@ -6,6 +6,7 @@ Status: planned · Phase: pre-pilot · Depends on: admin/05
 A signed-in admin stays signed in safely, and each role sees only the screens and buttons it's allowed to use.
 
 ## Decisions
+- **From api/04:** the API side is built. `@AdminPermission('…')` checks `ADMIN_PERMISSIONS` against the user's platform roles, read fresh from the database on every request, so a role removed in admin/14 applies at once. This item only adds the admin panel's guards and the `can()` hook.
 - **Tokens as in the tech doc:** an access token (15 minutes) kept in memory only, and a refresh token (30 days, shortened to **12 hours for admin**) in an httpOnly, Secure cookie.
 - **Same site for cookies.** Put the API and admin on the same parent domain (`api.<domain>.pk`, `admin.<domain>.pk`) so the cookie can be `SameSite=Lax`. Avoid cross-site cookies.
 - **Role names:** the `user_roles` table (db/02) holds `admin`, `ops` and `support`, and one person can hold more than one role. In the UI, `admin` is shown as "Super admin."

@@ -6,6 +6,7 @@ Status: planned · Phase: pre-pilot · Depends on: garage-app/04, api: garage pr
 The owner sets up the garage profile and adds mechanics, and each mechanic sees only what they need.
 
 ## Decisions
+- **From api/04:** use `GARAGE_PERMISSIONS` and `canInGarage()` from `@carfax/shared` to hide what a mechanic can't do. Send `X-Garage-Id` when the user belongs to several garages (the API answers `GARAGE_REQUIRED` with the list). Show `GARAGE_PENDING` and `GARAGE_SUSPENDED` as clear messages, not errors.
 - **Two roles in the app:**
 
 | Can do | Owner | Mechanic |

@@ -6,6 +6,7 @@ import type { Response } from 'express';
 import type Redis from 'ioredis';
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
+import { Public } from '../access/access.decorators';
 import { DB } from '../db/db.module';
 import { REDIS } from '../redis/redis.module';
 
@@ -31,6 +32,7 @@ export class HealthController {
 
   /** Up when the database and Redis both answer within 2 seconds; 503 otherwise. Used by hosting checks. */
   @Get()
+  @Public()
   @ApiOkResponse({ type: HealthDto })
   @ApiServiceUnavailableResponse({ type: HealthDto })
   async check(@Res({ passthrough: true }) res: Response): Promise<z.infer<typeof HealthSchema>> {

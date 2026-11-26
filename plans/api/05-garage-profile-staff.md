@@ -6,6 +6,7 @@ Status: planned · Phase: pre-pilot · Depends on: api/04
 A workshop owner can create their garage in the app, edit its profile and add mechanics, and the garage waits for approval before its jobs count.
 
 ## Decisions
+- **From api/04:** use `@GaragePermission('garage.view' | 'garage.edit' | 'staff.manage')` and `@CurrentGarage()`; run queries in `withGarage`. Pending garages may already edit their profile and staff.
 - **The owner creates the garage on first sign-in to the app** (`POST /garage`). It starts as `pending` until ops approves it (admin/08).
 - **Pending garages can already log jobs** so the owner can try the app, but their jobs stay out of reports until approval.
 - **Mechanics are added by phone number.** If the phone has no account yet, one is created and the mechanic signs in with OTP.

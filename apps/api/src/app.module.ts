@@ -1,9 +1,10 @@
 import { type DynamicModule, Module, type Type } from '@nestjs/common';
-import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { SentryModule } from '@sentry/nestjs/setup';
 import { LoggerModule } from 'nestjs-pino';
 import { ZodSerializerInterceptor, ZodValidationPipe } from 'nestjs-zod';
 import type { DestinationStream } from 'pino';
+import { AccessGuard } from './access/access.guard';
 import { AuthModule } from './auth/auth.module';
 import { getConfig } from './config';
 import { DbModule } from './db/db.module';
@@ -24,6 +25,8 @@ export interface AppModuleOptions {
   imports: [SentryModule.forRoot(), DbModule, RedisModule, MessagingModule, AuthModule],
   controllers: [HealthController],
   providers: [
+    // Every route must declare who may call it (api/04); routes without a rule are refused.
+    { provide: APP_GUARD, useClass: AccessGuard },
     // Every body, query and param with a Zod DTO is checked; failures become VALIDATION_FAILED.
     { provide: APP_PIPE, useClass: ZodValidationPipe },
     // Responses with a Zod DTO are checked too, so the API can't send fields it shouldn't.

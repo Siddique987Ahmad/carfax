@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { can } from '../constants/permissions';
+import { can, canInGarage } from '../constants/permissions';
 import { RegNoSchema, WorkTypeSchema } from './common';
 
 describe('schemas', () => {
@@ -26,5 +26,14 @@ describe('can', () => {
   it('uses any of a person’s roles', () => {
     expect(can(['buyer', 'admin'], 'audit.view')).toBe(true);
     expect(can(['buyer', 'dealer'], 'garages.view')).toBe(false);
+  });
+});
+
+describe('canInGarage', () => {
+  it('a mechanic logs jobs but sees no earnings and manages no staff', () => {
+    expect(canInGarage('mechanic', 'jobs.create')).toBe(true);
+    expect(canInGarage('mechanic', 'earnings.view')).toBe(false);
+    expect(canInGarage('mechanic', 'staff.manage')).toBe(false);
+    expect(canInGarage('owner', 'earnings.view')).toBe(true);
   });
 });

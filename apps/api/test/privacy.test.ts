@@ -2,6 +2,7 @@ import { Controller, Get, Inject, Module } from '@nestjs/common';
 import type { Db } from '@carfax/db';
 import { schema, withSystem } from '@carfax/db';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { Public } from '../src/access/access.decorators';
 import { buildOpenApi } from '../src/app';
 import { DB } from '../src/db/db.module';
 import { createCar, createCustomer, createGarage, createJob } from './factories';
@@ -64,6 +65,7 @@ describe('privacy: no customer data in public responses', () => {
 describe('privacy: the check itself catches a leak', () => {
   // A deliberately leaky route, to prove the check fails when a customer phone is added.
   @Controller('test-leak')
+  @Public()
   class LeakyController {
     constructor(@Inject(DB) private readonly db: Db) {}
     @Get()

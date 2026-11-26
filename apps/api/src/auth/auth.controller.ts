@@ -1,12 +1,12 @@
 import { PakistanMobileSchema } from '@carfax/shared';
-import { Body, Controller, Get, HttpCode, Post, Req, Res, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, HttpCode, Post, Req, Res } from '@nestjs/common';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
 import { createZodDto } from 'nestjs-zod';
 import { z } from 'zod';
 import { getConfig } from '../config';
 import { AppError } from '../errors/app-error';
-import { AuthGuard, CurrentUser } from './auth.guard';
+import { CurrentUser, Public, SignedIn } from '../access/access.decorators';
 import { AuthService } from './auth.service';
 import type { Audience } from './otp.service';
 import { REFRESH_TOKEN_DAYS, type SessionUser } from './token.service';
@@ -89,6 +89,7 @@ export class AuthController {
 
   /** Sends a 6-digit code to the phone (WhatsApp first, SMS fallback). At most 3 per 15 minutes. */
   @Post('otp/request')
+  @Public()
   @HttpCode(200)
   @ApiOkResponse({ type: CodeSentDto })
   async requestCode(@Body() body: RequestCodeDto) {
@@ -98,6 +99,7 @@ export class AuthController {
 
   /** Checks the code and signs in, creating the user on first login. */
   @Post('otp/verify')
+  @Public()
   @HttpCode(200)
   @ApiOkResponse({ type: SignedInDto })
   async verifyCode(@Body() body: VerifyCodeDto, @Res({ passthrough: true }) res: Response) {
@@ -111,6 +113,7 @@ export class AuthController {
 
   /** New tokens for an old refresh token (body for the app, cookie for the website). Rotates it. */
   @Post('refresh')
+  @Public()
   @HttpCode(200)
   @ApiOkResponse({ type: SignedInDto })
   async refresh(
@@ -126,6 +129,7 @@ export class AuthController {
 
   /** Signs out this device: every token from this login stops working. */
   @Post('logout')
+  @Public()
   @HttpCode(204)
   async logout(
     @Body() body: RefreshDto,
@@ -139,8 +143,7 @@ export class AuthController {
 
   /** The signed-in user. */
   @Get('me')
-  @UseGuards(AuthGuard)
-  @ApiBearerAuth()
+  @SignedIn()
   @ApiOkResponse({ type: MeDto })
   me(@CurrentUser() user: SessionUser) {
     return this.auth.me(user);
