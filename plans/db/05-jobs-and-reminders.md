@@ -1,6 +1,6 @@
 # db/05 — Jobs, work items, photos, flags and reminders
 
-Status: planned · Phase: pre-pilot · Depends on: db/03, db/04
+Status: done (Nov 27, 2026) · Phase: pre-pilot · Depends on: db/03, db/04
 
 ## Goal
 The tables that hold every service visit and its evidence. This is the data the whole product is built on, so it must support offline sync, fraud checks and reports.
@@ -15,6 +15,17 @@ The tables that hold every service visit and its evidence. This is the data the 
 - **Flags have `created_at`,** which the tech doc's table was missing. Flag codes: `MILEAGE_DROP`, `NO_PHOTO`, `OCR_MISMATCH`, `MANY_JOBS_SHORT_TIME` (admin/09). Only one open flag per code per job (partial unique index where `resolved_at` is null).
 - **Reminders** (tech doc table, left out of its SQL): one row per message due. `returned_job_id` records the job when the customer comes back, which gives the dashboard's "customers who return after a reminder" (admin/16).
 - **Synced tables** (`jobs`, `job_items`, `job_photos`, `reminders`) get `updated_at` triggers. Jobs are never hard-deleted; the other three have `deleted_at`.
+- **Built with these additions** (from the garage-app, api and admin plans, or found while building):
+  - **"Odometer not working"** (garage-app/11): `odometer_km` may be null only when `odometer_not_working` is true (CHECK). Readings must be 0–2,000,000 km.
+  - **"Next service due"** date and km on the job card (garage-app/20, api/13), which reminders are made from.
+  - **Labour price separate from part price** on work items (garage-app/12).
+  - **`job_photos.uploaded_at`:** a photo row can sync before its file finishes uploading, so the flag check can tell "still uploading" from "no photo" (workers/02). An uploaded photo must have a storage key (CHECK). The storage key is unique.
+  - **Privacy guard:** jobs and reminders reference `(customer_id, garage_id)` together, so a job can only use a customer of its own garage. This needs a unique `(id, garage_id)` on customers, which the migration creates before the foreign keys (moved by hand: drizzle-kit put it after them).
+  - **Work type and flag codes are text**, as planned, with a CHECK on the code format (`oil_change`, `MILEAGE_DROP`) and the exact list checked by Zod (`WorkTypeSchema`, `FlagCodeSchema`).
+  - **`photo_kind` is an enum** (`odometer`, `before`, `after`) instead of a CHECK.
+  - **The review queue index** is on `synced_at` for flagged jobs only, so the oldest-first queue (admin/09) reads straight from it.
+  - **`createDb` now always handles idle-connection errors** (found while testing). In node-postgres, an unhandled error on an idle pooled connection crashes the whole process, which would happen on any database restart or failover. `createDb` logs it by default and the pool replaces the connection; a test kills a connection to prove it.
+- **Answer to the open question:** the API rewrites `jobs.car_id` to the kept car when a job arrives under an alias (api/08), so reports only ever follow `merged_into_id`.
 
 ## Scope
 **In:**
@@ -40,13 +51,14 @@ The tables that hold every service visit and its evidence. This is the data the 
 4. Export Zod schemas, with the work-type list from `packages/shared`.
 
 ## Files and folders touched
-- `packages/db/src/schema/jobs.ts`, `packages/db/src/schema/reminders.ts`, `packages/db/migrations/*`
+- `packages/db/src/schema/jobs.ts` (jobs, items, photos, flags and reminders in one file), `packages/db/src/schema/garages.ts` (unique `(id, garage_id)`), `packages/db/src/zod.ts`, `packages/db/src/client.ts` (error handler)
+- `packages/db/migrations/0006_jobs_and_reminders.sql`
 
 ## Done when
-- [ ] Inserting the same job ID twice fails, so the API can treat a resend as "already saved"
-- [ ] A job can't point at a car or garage that doesn't exist
-- [ ] A second open `MILEAGE_DROP` flag on the same job is refused; after resolving, a new one is allowed
-- [ ] The car timeline query uses `jobs_car_date` (checked with `EXPLAIN`)
+- [x] Inserting the same job ID twice fails, so the API can treat a resend as "already saved"
+- [x] A job can't point at a car or garage that doesn't exist (nor at another garage's customer)
+- [x] A second open `MILEAGE_DROP` flag on the same job is refused; after resolving, a new one is allowed
+- [x] The car timeline query uses `jobs_car_date` (checked with `EXPLAIN`)
 
 ## Open questions
-- Should the API rewrite `jobs.car_id` to the real car when it came in under an alias (db/04), or keep the alias and resolve it on read? Proposed: rewrite on sync, so reports only follow `merged_into_id`.
+- None. (Alias question answered above: rewrite on sync.)

@@ -6,6 +6,7 @@ Status: planned · Phase: pre-pilot · Depends on: api/06, api/07, db: job table
 Jobs saved on a phone without internet reach the server safely when it reconnects: none lost, none duplicated, even if the upload is cut halfway and retried.
 
 ## Decisions
+- **When a job arrives under a car alias, rewrite `jobs.car_id` to the kept car** before saving (decided in db/05), so reports only follow `merged_into_id`. A photo row can arrive before its file: leave `uploaded_at` null until the upload is confirmed.
 - **Follow WatermelonDB's sync format** (`changes: { table: { created, updated, deleted } }`), so the app can use WatermelonDB's built-in `synchronize()` (garage-app sync plan) instead of custom code.
 - **`POST /sync/push`** (tech doc) saves the whole batch in **one transaction**: all of it or none of it.
 - **Safe to resend:** every record has a phone-made UUID; a record already saved is skipped, not duplicated.

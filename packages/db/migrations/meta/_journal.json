@@ -43,6 +43,13 @@
       "when": 1795724876865,
       "tag": "0005_plate_history",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1795725065783,
+      "tag": "0006_jobs_and_reminders",
+      "breakpoints": true
     }
   ]
 }

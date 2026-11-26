@@ -12,7 +12,7 @@ Each plan adds one group of tables (or one safety feature) with its migration, Z
 | 03 | [Garages, staff and customers](03-garages-members-customers.md) | done |
 | 04 | [Cars](04-cars.md) | done |
 | 04b | [Plate history](04b-plate-history.md) | done |
-| 05 | [Jobs, work items, photos, flags and reminders](05-jobs-and-reminders.md) | planned |
+| 05 | [Jobs, work items, photos, flags and reminders](05-jobs-and-reminders.md) | done |
 | 06 | [Audit log and database users](06-audit-log-and-db-users.md) | planned |
 | 07 | [Row-level security for garage data](07-row-level-security.md) | planned |
 | 08 | [Seed data for development and demos](08-seed-data.md) | planned |

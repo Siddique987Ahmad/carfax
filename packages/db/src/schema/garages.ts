@@ -9,6 +9,7 @@ import {
   pgTable,
   primaryKey,
   text,
+  unique,
   timestamp,
   uniqueIndex,
   uuid,
@@ -92,5 +93,8 @@ export const customers = pgTable(
       .on(t.garageId, t.phone)
       .where(sql`${t.deletedAt} IS NULL`),
     index().on(t.garageId, t.updatedAt),
+    // Lets jobs and reminders reference (customer, garage) together, so a job can only point at a
+    // customer of its own garage (db/05).
+    unique('customers_id_garage_unique').on(t.id, t.garageId),
   ],
 );
