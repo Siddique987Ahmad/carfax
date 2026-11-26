@@ -6,7 +6,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./schema": "./src/schema/index.ts",
-    "./zod": "./src/zod.ts"
+    "./zod": "./src/zod.ts",
+    "./testing": "./src/testing/index.ts"
   },
   "scripts": {
     "db:generate": "drizzle-kit generate",

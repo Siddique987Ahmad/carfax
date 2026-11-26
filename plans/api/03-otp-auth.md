@@ -6,6 +6,7 @@ Status: planned · Phase: pre-pilot · Depends on: api/01, db: core tables
 Garage staff, buyers, dealers and car owners sign in with their phone number and a 6-digit code, and get tokens that keep them signed in safely.
 
 ## Decisions
+- **Add `asUser(role)` to the test harness** (moved here from api/02): signs in a factory user through the real OTP flow (the console messaging provider exposes the code to tests) and returns an authenticated Supertest agent.
 - **Endpoints from the tech doc:** `POST /auth/otp/request`, `POST /auth/otp/verify`, `POST /auth/refresh`, plus `POST /auth/logout`.
 - **An `audience` field:** `garage` (mobile app) or `web` (public site). The admin audience is added later by admin/04; this item leaves room for it but doesn't build it.
 - **Phones normalised to +92 format** before anything else, by one function in `packages/shared`.

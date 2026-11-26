@@ -10,11 +10,15 @@ const ConfigSchema = z
   .object({
     NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
     PORT: z.coerce.number().int().positive().default(3000),
-    LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
+    LOG_LEVEL: z
+      .enum(['silent', 'fatal', 'error', 'warn', 'info', 'debug', 'trace'])
+      .default('info'),
     /** The app's database user, carfax_app (db/06). Never the table owner. */
     DATABASE_URL: z.url(),
     DATABASE_POOL_MAX: z.coerce.number().int().positive().default(10),
     REDIS_URL: z.url(),
+    /** Prefix for every Redis key. Tests give each file its own, so parallel files can't collide. */
+    REDIS_KEY_PREFIX: z.string().default(''),
     /** Empty locally: Sentry is off. */
     SENTRY_DSN: z.union([z.literal(''), z.url()]).default(''),
     /** Only to check the app isn't given the owner's connection by mistake. */
@@ -29,6 +33,11 @@ const ConfigSchema = z
 export type Config = z.infer<typeof ConfigSchema>;
 
 let cached: Config | undefined;
+
+/** Tests change the environment between apps; this makes the next getConfig() read it again. */
+export function resetConfigForTests(): void {
+  cached = undefined;
+}
 
 /** Reads and checks the environment once. A missing or wrong value stops the API at startup. */
 export function getConfig(): Config {

@@ -1,8 +1,9 @@
-import { Module } from '@nestjs/common';
+import { type DynamicModule, Module, type Type } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { SentryModule } from '@sentry/nestjs/setup';
 import { LoggerModule } from 'nestjs-pino';
 import { ZodSerializerInterceptor, ZodValidationPipe } from 'nestjs-zod';
+import type { DestinationStream } from 'pino';
 import { getConfig } from './config';
 import { DbModule } from './db/db.module';
 import { AllExceptionsFilter } from './errors/exception.filter';
@@ -10,14 +11,15 @@ import { HealthController } from './health/health.controller';
 import { loggerParams } from './logging';
 import { RedisModule } from './redis/redis.module';
 
+export interface AppModuleOptions {
+  /** Where logs go; tests pass an in-memory stream. Defaults to stdout. */
+  logStream?: DestinationStream;
+  /** Extra modules, e.g. test-only controllers. */
+  imports?: Type[];
+}
+
 @Module({
-  imports: [
-    SentryModule.forRoot(),
-    // Read lazily: building openapi.json (preview mode) must not need any environment.
-    LoggerModule.forRootAsync({ useFactory: () => loggerParams(getConfig()) }),
-    DbModule,
-    RedisModule,
-  ],
+  imports: [SentryModule.forRoot(), DbModule, RedisModule],
   controllers: [HealthController],
   providers: [
     // Every body, query and param with a Zod DTO is checked; failures become VALIDATION_FAILED.
@@ -27,4 +29,17 @@ import { RedisModule } from './redis/redis.module';
     { provide: APP_FILTER, useClass: AllExceptionsFilter },
   ],
 })
-export class AppModule {}
+export class AppModule {
+  static register(options: AppModuleOptions = {}): DynamicModule {
+    return {
+      module: AppModule,
+      imports: [
+        // Read lazily: building openapi.json (preview mode) must not need any environment.
+        LoggerModule.forRootAsync({
+          useFactory: () => loggerParams(getConfig(), options.logStream),
+        }),
+        ...(options.imports ?? []),
+      ],
+    };
+  }
+}
