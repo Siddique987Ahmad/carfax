@@ -10,6 +10,7 @@ import {
   jsonb,
   numeric,
   pgEnum,
+  pgPolicy,
   pgTable,
   real,
   text,
@@ -21,6 +22,7 @@ import {
 import { cars } from './cars';
 import { createdAt, deletedAt, updatedAt } from './columns';
 import { customers, garages } from './garages';
+import { garageScope } from './rls';
 import { users } from './users';
 
 export const jobStatus = pgEnum('job_status', JOB_STATUSES);
@@ -92,6 +94,11 @@ export const jobs = pgTable(
       .on(t.syncedAt)
       .where(sql`${t.status} = 'flagged'`),
     index().on(t.customerId),
+    pgPolicy('jobs_garage_isolation', {
+      for: 'all',
+      using: garageScope(t.garageId),
+      withCheck: garageScope(t.garageId),
+    }),
   ],
 );
 
@@ -118,6 +125,12 @@ export const jobItems = pgTable(
     check('job_items_part_price_not_negative', sql`${t.partPricePkr} >= 0`),
     check('job_items_labour_price_not_negative', sql`${t.labourPricePkr} >= 0`),
     index().on(t.jobId),
+    pgPolicy('job_items_garage_isolation', {
+      for: 'all',
+      // Through the parent job: jobs has its own policy, so this only finds the garage's jobs.
+      using: sql`EXISTS (SELECT 1 FROM jobs WHERE jobs.id = ${t.jobId})`,
+      withCheck: sql`EXISTS (SELECT 1 FROM jobs WHERE jobs.id = ${t.jobId})`,
+    }),
   ],
 );
 
@@ -158,6 +171,12 @@ export const jobPhotos = pgTable(
     check('job_photos_lng_range', sql`${t.lng} BETWEEN -180 AND 180`),
     check('job_photos_gps_accuracy', sql`${t.gpsAccuracyM} >= 0`),
     index().on(t.jobId),
+    pgPolicy('job_photos_garage_isolation', {
+      for: 'all',
+      // Through the parent job: jobs has its own policy, so this only finds the garage's jobs.
+      using: sql`EXISTS (SELECT 1 FROM jobs WHERE jobs.id = ${t.jobId})`,
+      withCheck: sql`EXISTS (SELECT 1 FROM jobs WHERE jobs.id = ${t.jobId})`,
+    }),
   ],
 );
 
@@ -185,6 +204,12 @@ export const jobFlags = pgTable(
     uniqueIndex('job_flags_one_open_per_code')
       .on(t.jobId, t.code)
       .where(sql`${t.resolvedAt} IS NULL`),
+    pgPolicy('job_flags_garage_isolation', {
+      for: 'all',
+      // Through the parent job: jobs has its own policy, so this only finds the garage's jobs.
+      using: sql`EXISTS (SELECT 1 FROM jobs WHERE jobs.id = ${t.jobId})`,
+      withCheck: sql`EXISTS (SELECT 1 FROM jobs WHERE jobs.id = ${t.jobId})`,
+    }),
   ],
 );
 
@@ -234,5 +259,10 @@ export const reminders = pgTable(
     index().on(t.status, t.dueDate),
     // Sync pulls (api/09).
     index().on(t.garageId, t.updatedAt),
+    pgPolicy('reminders_garage_isolation', {
+      for: 'all',
+      using: garageScope(t.garageId),
+      withCheck: garageScope(t.garageId),
+    }),
   ],
 );

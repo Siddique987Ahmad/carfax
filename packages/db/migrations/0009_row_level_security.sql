@@ -1,0 +1,14 @@
+ALTER TABLE "customers" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "garage_members" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "job_flags" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "job_items" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "job_photos" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "jobs" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+ALTER TABLE "reminders" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE POLICY "customers_garage_isolation" ON "customers" AS PERMISSIVE FOR ALL TO public USING (current_setting('app.scope', true) = 'system' OR "customers"."garage_id" = nullif(current_setting('app.garage_id', true), '')::uuid) WITH CHECK (current_setting('app.scope', true) = 'system' OR "customers"."garage_id" = nullif(current_setting('app.garage_id', true), '')::uuid);--> statement-breakpoint
+CREATE POLICY "garage_members_garage_isolation" ON "garage_members" AS PERMISSIVE FOR ALL TO public USING (current_setting('app.scope', true) = 'system' OR "garage_members"."garage_id" = nullif(current_setting('app.garage_id', true), '')::uuid) WITH CHECK (current_setting('app.scope', true) = 'system' OR "garage_members"."garage_id" = nullif(current_setting('app.garage_id', true), '')::uuid);--> statement-breakpoint
+CREATE POLICY "job_flags_garage_isolation" ON "job_flags" AS PERMISSIVE FOR ALL TO public USING (EXISTS (SELECT 1 FROM jobs WHERE jobs.id = "job_flags"."job_id")) WITH CHECK (EXISTS (SELECT 1 FROM jobs WHERE jobs.id = "job_flags"."job_id"));--> statement-breakpoint
+CREATE POLICY "job_items_garage_isolation" ON "job_items" AS PERMISSIVE FOR ALL TO public USING (EXISTS (SELECT 1 FROM jobs WHERE jobs.id = "job_items"."job_id")) WITH CHECK (EXISTS (SELECT 1 FROM jobs WHERE jobs.id = "job_items"."job_id"));--> statement-breakpoint
+CREATE POLICY "job_photos_garage_isolation" ON "job_photos" AS PERMISSIVE FOR ALL TO public USING (EXISTS (SELECT 1 FROM jobs WHERE jobs.id = "job_photos"."job_id")) WITH CHECK (EXISTS (SELECT 1 FROM jobs WHERE jobs.id = "job_photos"."job_id"));--> statement-breakpoint
+CREATE POLICY "jobs_garage_isolation" ON "jobs" AS PERMISSIVE FOR ALL TO public USING (current_setting('app.scope', true) = 'system' OR "jobs"."garage_id" = nullif(current_setting('app.garage_id', true), '')::uuid) WITH CHECK (current_setting('app.scope', true) = 'system' OR "jobs"."garage_id" = nullif(current_setting('app.garage_id', true), '')::uuid);--> statement-breakpoint
+CREATE POLICY "reminders_garage_isolation" ON "reminders" AS PERMISSIVE FOR ALL TO public USING (current_setting('app.scope', true) = 'system' OR "reminders"."garage_id" = nullif(current_setting('app.garage_id', true), '')::uuid) WITH CHECK (current_setting('app.scope', true) = 'system' OR "reminders"."garage_id" = nullif(current_setting('app.garage_id', true), '')::uuid);

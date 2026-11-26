@@ -30,6 +30,22 @@ All commands run from the repo root and read `.env` (`pnpm env:init`). The local
 
 **Never point the app at the owner:** Postgres skips row-level security for a table's owner (db/07). The migrations create `carfax_app` without a password; `pnpm db:provision-app-user` lets it log in with `APP_DB_PASSWORD`. On a new environment: run `pnpm db:migrate`, then `pnpm db:provision-app-user`.
 
+## Garage data is protected by row-level security (db/07)
+
+`customers`, `jobs` (and their items, photos and flags), `reminders` and `garage_members` belong to one garage. Connected as `carfax_app`, **every query on them must run inside a scope helper**, or it sees no rows at all:
+
+```ts
+import { withGarage, withSystem } from '@carfax/db';
+
+// Garage app requests: only this garage's rows, even if a query forgets its filter.
+const myJobs = await withGarage(db, garageId, (tx) => tx.select().from(schema.jobs));
+
+// Admin panel, workers, report building, login: every garage.
+const all = await withSystem(db, (tx) => tx.select().from(schema.jobs));
+```
+
+Each helper runs one transaction and sets the scope only for it, so nothing leaks to the next request on a pooled connection. Shared tables (`users`, `garages`, `cars`, plates, `audit_logs`) have no row-level security: the API decides who sees them. A test fails if a new table with a `garage_id` or `job_id` column doesn't switch row-level security on.
+
 ## Using the client
 
 Create one client at start-up and share it. Close the pool on shutdown.

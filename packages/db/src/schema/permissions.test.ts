@@ -1,5 +1,6 @@
 import { eq, sql } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { withSystem } from '../scope';
 import { createTestDatabase } from '../testing/test-db';
 import { auditLogs } from './audit';
 import { carRegistrations, cars } from './cars';
@@ -63,18 +64,24 @@ describe('the app database user (carfax_app)', () => {
       await tx.insert(carRegistrations).values({ carId: c!.id, regNo: 'LEA9001' });
       return c!;
     });
-    const [job] = await t.app.db
-      .insert(jobs)
-      .values({
-        carId: car.id,
-        garageId: garage!.id,
-        createdBy: owner!.id,
-        serviceDate: '2026-11-27',
-        odometerKm: 1000,
-        deviceCreatedAt: new Date(),
-      })
-      .returning();
-    expect(await pgCode(t.app.db.delete(jobs).where(eq(jobs.id, job!.id)))).toBe(DENIED);
+    // Jobs are protected by row-level security (db/07), so this needs a scope like real code.
+    const job = await withSystem(t.app.db, async (tx) => {
+      const [j] = await tx
+        .insert(jobs)
+        .values({
+          carId: car.id,
+          garageId: garage!.id,
+          createdBy: owner!.id,
+          serviceDate: '2026-11-27',
+          odometerKm: 1000,
+          deviceCreatedAt: new Date(),
+        })
+        .returning();
+      return j!;
+    });
+    expect(
+      await pgCode(withSystem(t.app.db, (tx) => tx.delete(jobs).where(eq(jobs.id, job.id)))),
+    ).toBe(DENIED);
     expect(await pgCode(t.app.db.delete(cars).where(eq(cars.id, car.id)))).toBe(DENIED);
     expect(
       await pgCode(t.app.db.delete(carRegistrations).where(eq(carRegistrations.carId, car.id))),

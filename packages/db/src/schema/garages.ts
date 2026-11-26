@@ -6,6 +6,7 @@ import {
   integer,
   numeric,
   pgEnum,
+  pgPolicy,
   pgTable,
   primaryKey,
   text,
@@ -16,6 +17,7 @@ import {
   varchar,
 } from 'drizzle-orm/pg-core';
 import { createdAt, deletedAt, updatedAt } from './columns';
+import { garageScope } from './rls';
 import { users } from './users';
 
 export const garageStatus = pgEnum('garage_status', GARAGE_STATUSES);
@@ -65,7 +67,15 @@ export const garageMembers = pgTable(
     role: garageRole().notNull(),
     createdAt: createdAt(),
   },
-  (t) => [primaryKey({ columns: [t.garageId, t.userId] }), index().on(t.userId)],
+  (t) => [
+    primaryKey({ columns: [t.garageId, t.userId] }),
+    index().on(t.userId),
+    pgPolicy('garage_members_garage_isolation', {
+      for: 'all',
+      using: garageScope(t.garageId),
+      withCheck: garageScope(t.garageId),
+    }),
+  ],
 );
 
 /**
@@ -96,5 +106,10 @@ export const customers = pgTable(
     // Lets jobs and reminders reference (customer, garage) together, so a job can only point at a
     // customer of its own garage (db/05).
     unique('customers_id_garage_unique').on(t.id, t.garageId),
+    pgPolicy('customers_garage_isolation', {
+      for: 'all',
+      using: garageScope(t.garageId),
+      withCheck: garageScope(t.garageId),
+    }),
   ],
 );
