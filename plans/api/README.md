@@ -16,7 +16,7 @@ What the garage app needs for the pilot: sign-in, garages, cars, photos, sync, b
 | 03 | [Phone OTP login and tokens](03-otp-auth.md) | done |
 | 04 | [Role guards and garage scoping](04-guards-and-scoping.md) | done |
 | 05 | [Garage profile and staff](05-garage-profile-staff.md) | done |
-| 06 | [Car lookup and offline-created cars](06-car-lookup.md) | planned |
+| 06 | [Car lookup and offline-created cars](06-car-lookup.md) | done |
 | 07 | [Signed photo uploads](07-signed-uploads.md) | planned |
 | 08 | [Sync push (offline jobs to server)](08-sync-push.md) | planned |
 | 09 | [Sync pull (server changes to phone)](09-sync-pull.md) | planned |

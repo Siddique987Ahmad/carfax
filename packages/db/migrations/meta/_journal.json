@@ -78,6 +78,13 @@
       "when": 1795727918132,
       "tag": "0010_refresh_tokens",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1795729298921,
+      "tag": "0011_car_duplicate_candidates",
+      "breakpoints": true
     }
   ]
 }

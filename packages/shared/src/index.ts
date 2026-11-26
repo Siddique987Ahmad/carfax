@@ -1,3 +1,4 @@
+export * from './constants/car-models';
 export * from './constants/cities';
 export * from './constants/permissions';
 export * from './constants/roles';

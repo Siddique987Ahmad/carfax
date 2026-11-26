@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { canonicalCar } from '../constants/car-models';
 import { can, canInGarage } from '../constants/permissions';
 import { RegNoSchema, WorkTypeSchema } from './common';
 
@@ -35,5 +36,17 @@ describe('canInGarage', () => {
     expect(canInGarage('mechanic', 'earnings.view')).toBe(false);
     expect(canInGarage('mechanic', 'staff.manage')).toBe(false);
     expect(canInGarage('owner', 'earnings.view')).toBe(true);
+  });
+});
+
+describe('canonicalCar', () => {
+  it('spells known makes and models one way', () => {
+    expect(canonicalCar(' toyota ', 'COROLLA')).toEqual({ make: 'Toyota', model: 'Corolla' });
+    expect(canonicalCar('suzuki', 'wagon  r')).toEqual({ make: 'Suzuki', model: 'Wagon R' });
+  });
+
+  it('keeps unknown ones as typed, trimmed', () => {
+    expect(canonicalCar('Proton', ' Saga ')).toEqual({ make: 'Proton', model: 'Saga' });
+    expect(canonicalCar('Honda', '')).toEqual({ make: 'Honda', model: null });
   });
 });

@@ -3,6 +3,7 @@ import {
   type AnyPgColumn,
   check,
   index,
+  jsonb,
   pgEnum,
   pgTable,
   smallint,
@@ -121,4 +122,34 @@ export const carAliases = pgTable(
     createdAt: createdAt(),
   },
   (t) => [check('car_aliases_not_self', sql`${t.aliasId} <> ${t.carId}`), index().on(t.carId)],
+);
+
+/**
+ * Pairs of cars that may be the same vehicle, for ops to review and merge (admin/13). Written when a
+ * plate and a chassis number point at two different cars (api/06).
+ */
+export const carDuplicateCandidates = pgTable(
+  'car_duplicate_candidates',
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    carId: uuid()
+      .notNull()
+      .references(() => cars.id),
+    otherCarId: uuid()
+      .notNull()
+      .references(() => cars.id),
+    /** e.g. 'plate_and_chassis_disagree'. */
+    reason: text().notNull(),
+    details: jsonb(),
+    createdAt: createdAt(),
+    resolvedAt: timestamp({ withTimezone: true }),
+    resolvedBy: uuid(),
+  },
+  (t) => [
+    check('car_duplicate_candidates_not_self', sql`${t.carId} <> ${t.otherCarId}`),
+    // One open entry per pair, whichever way round it was found.
+    uniqueIndex('car_duplicate_candidates_open_pair')
+      .on(sql`least(${t.carId}, ${t.otherCarId})`, sql`greatest(${t.carId}, ${t.otherCarId})`)
+      .where(sql`${t.resolvedAt} IS NULL`),
+  ],
 );

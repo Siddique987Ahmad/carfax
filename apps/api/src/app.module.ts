@@ -6,6 +6,7 @@ import { ZodSerializerInterceptor, ZodValidationPipe } from 'nestjs-zod';
 import type { DestinationStream } from 'pino';
 import { AccessGuard } from './access/access.guard';
 import { AuthModule } from './auth/auth.module';
+import { CarsModule } from './cars/cars.module';
 import { getConfig } from './config';
 import { DbModule } from './db/db.module';
 import { AllExceptionsFilter } from './errors/exception.filter';
@@ -30,6 +31,7 @@ export interface AppModuleOptions {
     MessagingModule,
     AuthModule,
     GaragesModule,
+    CarsModule,
   ],
   controllers: [HealthController],
   providers: [

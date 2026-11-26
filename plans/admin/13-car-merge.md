@@ -6,6 +6,7 @@ Status: planned · Phase: pilot · Depends on: admin/12
 When the same car exists twice (typed plate vs scanned plate, plate vs chassis, two garages adding it offline), ops can combine them into one record, so its history isn't split.
 
 ## Decisions
+- **Duplicate suggestions (from api/06):** read open rows from `car_duplicate_candidates` (plate and chassis pointing at different cars) alongside the computed suggestions, and set `resolved_at`/`resolved_by` when ops merge or dismiss a pair. `CarIdentityService` already follows `merged_into_id`.
 - **Merges also move plate history (db/04b):** the merged car's registrations move to the kept car, ending any duplicate current plate with reason `correction`.
 - **Preview before merge:** both cars side by side, with the combined mileage timeline.
 - **No deletes.** The merged-away car keeps a `merged_into_id` pointer, so old links and report orders still resolve to the right car.
