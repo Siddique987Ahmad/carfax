@@ -6,6 +6,7 @@ Status: planned · Phase: pre-pilot (by week 8) · Depends on: setup/05, setup/0
 Every merge to `main` deploys automatically to a staging copy of the whole system, so features are tested on real hosting before pilot garages use them.
 
 ## Decisions
+- **Photo storage (from api/07):** a private R2 bucket per environment (`S3_BUCKET_PHOTOS`), no public access. The mobile app needs no CORS (native uploads); add CORS only if a web page ever uploads directly. Set `S3_ENDPOINT` to the account's R2 endpoint, `S3_REGION=auto`, `S3_FORCE_PATH_STYLE=false`.
 - **Hosting as in the tech doc:**
   - API and workers: Render, Railway or DigitalOcean (Docker)
   - Postgres: managed Postgres with backups

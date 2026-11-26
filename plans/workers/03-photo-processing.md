@@ -6,6 +6,7 @@ Status: planned · Phase: pre-pilot · Depends on: workers/01, api/07
 Uploaded photos get small versions for fast review screens, and copies shown to people don't carry hidden personal data, while the original stays as evidence.
 
 ## Decisions
+- **Check the bytes are really a JPEG** (from api/07): the signed upload fixes the declared size and type, but can't inspect the content. If sharp can't read it as a JPEG, mark the photo invalid and raise `NO_PHOTO` for its job.
 - **Keep the original untouched** in the private bucket, as evidence for disputes.
 - **Make two versions with sharp:** a thumbnail (~300px) and a display version (~1280px), both with EXIF data removed.
 - **GPS and time are stored in database columns** from the app's own capture data, not read back from EXIF. If the original has EXIF GPS/time that disagrees with what the app sent, flag it for review, since that may mean a tampered photo.

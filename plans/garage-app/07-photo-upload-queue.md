@@ -6,6 +6,7 @@ Status: planned · Phase: pre-pilot · Depends on: garage-app/06, api: signed ph
 Odometer and before/after photos upload in the background over weak or expensive mobile data, without blocking the mechanic or losing a photo.
 
 ## Decisions
+- **From api/07:** call `POST /v1/uploads/sign` with the photo's exact byte size, then `PUT` the file to `uploadUrl` with exactly the returned `headers` (`content-type`, `content-length`); any other size or type is refused by storage. URLs last 10 minutes: sign just before uploading, and sign again after a failure. Keep `storageKey` for sync push. For local testing on a real phone, set `S3_PUBLIC_ENDPOINT` to the computer's LAN IP.
 - **Resize and compress on the phone before upload:** longest side 1600 px, JPEG quality 0.7, about 200–400 KB per photo. Odometer digits stay readable.
 - **Upload straight to storage with a signed URL** from the API, as in the tech doc; the API never handles the file.
 - **One queue on the phone:** each photo has an upload state (`waiting`, `uploading`, `done`, `failed`). Uploads run one at a time, and a failed upload retries with growing waits.
