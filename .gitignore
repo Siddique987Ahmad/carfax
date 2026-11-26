@@ -1,0 +1,52 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build output
+dist/
+build/
+out/
+coverage/
+*.tsbuildinfo
+
+# Turborepo
+.turbo/
+
+# Next.js
+.next/
+next-env.d.ts
+
+# Expo / React Native
+.expo/
+expo-env.d.ts
+android/
+ios/
+*.jks
+*.keystore
+*.p8
+*.p12
+*.mobileprovision
+
+# Environment and secrets: only .env.example files are committed
+.env
+.env.*
+!.env.example
+*.pem
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Editors and OS
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# LibreOffice lock files (docs/ is edited in LibreOffice)
+.~lock.*#
+
+# Claude Code local settings
+.claude/settings.local.json
