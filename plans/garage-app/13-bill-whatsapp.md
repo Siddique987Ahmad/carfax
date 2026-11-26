@@ -6,6 +6,7 @@ Status: planned · Phase: pre-pilot · Depends on: garage-app/12
 After a job, the customer gets a clean bill on WhatsApp from the garage, which is one of the main reasons owners will use the app.
 
 ## Decisions
+- **From api/12:** call `POST /v1/jobs/:id/send-bill` with the app's language and open `shareLink` (`Linking.openURL`); the server builds the text and the bill link. Show `NO_CUSTOMER_PHONE` as "add the customer's number" and `RATE_LIMITED` as "already sent 3 times today". The job must be synced first (it needs a server job id).
 - **MVP: send from the garage's own WhatsApp using a `wa.me` link** with the bill as pre-filled text. It costs nothing, works without Meta business approval, and the customer sees a number they already know.
 - **Later: WhatsApp Business Cloud API** (sent by workers/) for automatic sending and PDF attachments. Meta charges per message, and setup needs business verification. Switch once reminders prove their value.
 

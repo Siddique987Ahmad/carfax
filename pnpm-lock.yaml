@@ -285,6 +285,9 @@ importers:
       '@carfax/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@carfax/i18n':
+        specifier: workspace:*
+        version: link:../../packages/i18n
       '@carfax/shared':
         specifier: workspace:*
         version: link:../../packages/shared

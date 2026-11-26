@@ -1,11 +1,12 @@
 import { Controller, Get, Inject, Module } from '@nestjs/common';
 import type { Db } from '@carfax/db';
+import { sql } from 'drizzle-orm';
 import { schema, withSystem } from '@carfax/db';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { Public } from '../src/access/access.decorators';
 import { buildOpenApi } from '../src/app';
 import { DB } from '../src/db/db.module';
-import { createCar, createCustomer, createGarage, createJob } from './factories';
+import { createCar, createCustomer, createGarage, createJob, createUser } from './factories';
 import { startTestApp, type TestApp } from './harness';
 import { findPersonalData } from './privacy';
 
@@ -33,7 +34,7 @@ async function seedCustomer(t: TestApp) {
     customerId: customer.id,
     regNo,
   });
-  return { names: [customer.name!] };
+  return { names: [customer.name!], phones: [customer.phone!] };
 }
 
 describe('privacy: no customer data in public responses', () => {
@@ -59,6 +60,48 @@ describe('privacy: no customer data in public responses', () => {
       expect(findPersonalData(res.text, names), `GET ${path}`).toEqual([]);
     }
     // Routes with parameters (report pages, search) get explicit cases here as they're built.
+  });
+
+  it('the public bill page (api/12) shows no customer name or phone', async () => {
+    const [job] = await t.db.select({ id: schema.jobs.id }).from(schema.jobs).limit(1);
+    const owner = await t.db
+      .execute(sql`select u.phone from jobs j join garages g on g.id = j.garage_id
+      join users u on u.id = g.owner_id where j.id = ${job!.id}`);
+    const session = await t.asUser(String(owner.rows[0]!.phone));
+    const sent = await session.http.post(`/v1/jobs/${job!.id}/send-bill`).send({}).expect(200);
+    const res = await t.http.get(`/v1/bills/${sent.body.billUrl.split('/b/')[1]}`).expect(200);
+    expect(findPersonalData(res.text, names)).toEqual([]);
+  });
+});
+
+describe('privacy: signed in, nobody outside the garage sees its customers', () => {
+  let t: TestApp;
+  let names: string[];
+  let phones: string[];
+  beforeAll(async () => {
+    t = await startTestApp();
+    ({ names, phones } = await seedCustomer(t));
+  });
+  afterAll(async () => {
+    await t?.close();
+  });
+
+  it("another garage's owner and a buyer see neither the name nor the phone on any route", async () => {
+    const otherGarage = await createGarage(t.db, { name: 'Other Motors' });
+    const callers = [
+      await t.asUser(otherGarage.owner.phone),
+      await t.asUser((await createUser(t.db, { roles: ['buyer'] })).phone, 'web'),
+    ];
+    const paths = Object.entries(buildOpenApi(t.app).paths)
+      .filter(([path, ops]) => ops.get && !path.includes('{'))
+      .map(([path]) => path);
+    expect(paths).toContain('/v1/customers');
+    for (const caller of callers) {
+      for (const path of paths) {
+        const res = await caller.http.get(path);
+        expect(findPersonalData(res.text, names, phones), `GET ${path}`).toEqual([]);
+      }
+    }
   });
 });
 

@@ -40,6 +40,8 @@ const ConfigSchema = z
     S3_SECRET_ACCESS_KEY: z.string().min(1),
     S3_FORCE_PATH_STYLE: z.stringbool().default(false),
     S3_BUCKET_PHOTOS: z.string().min(1),
+    /** The public website, for links sent to customers (e.g. bill pages, api/12). */
+    PUBLIC_WEB_URL: z.url().default('http://localhost:3001'),
     /** Empty locally: Sentry is off. */
     SENTRY_DSN: z.union([z.literal(''), z.url()]).default(''),
     /** Only to check the app isn't given the owner's connection by mistake. */

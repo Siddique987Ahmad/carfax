@@ -6,6 +6,7 @@ Status: planned · Phase: pilot · Depends on: garage-app/12, garage-app/19
 The garage sees which customers are due for their next service and messages them in one tap, bringing customers back. The product doc calls this the feature that wins garage owners.
 
 ## Decisions
+- **From api/13:** the due list is `GET /v1/reminders/due?within=7`; one tap is `POST /v1/reminders/:id/send` (open `shareLink`); snooze and dismiss are `PATCH /v1/reminders/:id`. Reminders also arrive through sync pull, so the list works offline; sending needs a connection. Convert a "next service at X km" into `next_service_due_date` before pushing the job.
 - **Due dates come from the job card's "next service due"** (date, or km turned into an estimated date from the car's average km per day; default 3 months if unknown).
 - **MVP: one-tap send through `wa.me`** from the garage's own WhatsApp, with a friendly pre-written message. Automatic sending through the Cloud API comes later via workers/, as in 13.
 - **Mark as sent, snooze or dismiss.** A reminder counts as "came back" if the same car has a job at this garage within 30 days of the reminder. This is a product doc metric.

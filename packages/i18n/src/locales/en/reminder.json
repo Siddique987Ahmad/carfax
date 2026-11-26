@@ -1,0 +1,4 @@
+{
+  "textNamed": "Hello {name}! Your {car} ({plate}) is due for {work} around {date}. Please visit us. — {garage}",
+  "text": "Hello! Your {car} ({plate}) is due for {work} around {date}. Please visit us. — {garage}"
+}

@@ -325,3 +325,40 @@ export const jobCorrectionRequests = pgTable(
     }),
   ],
 );
+
+/**
+ * Every time a garage sends a bill (api/12). Each send gets its own link to the bill page; only a
+ * SHA-256 hash of the link's token is stored, like refresh tokens, so a database leak exposes no
+ * working links.
+ */
+export const billSends = pgTable(
+  'bill_sends',
+  {
+    id: uuid().primaryKey().defaultRandom(),
+    jobId: uuid().notNull(),
+    garageId: uuid().notNull(),
+    sentBy: uuid()
+      .notNull()
+      .references(() => users.id),
+    /** 'wa_me' in the pilot (one tap from the garage's WhatsApp); 'cloud_api' later (workers/04). */
+    method: text().notNull(),
+    tokenHash: text().notNull().unique('bill_sends_token_hash_unique'),
+    expiresAt: timestamp({ withTimezone: true }).notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [
+    foreignKey({
+      name: 'bill_sends_job_same_garage_fk',
+      columns: [t.jobId, t.garageId],
+      foreignColumns: [jobs.id, jobs.garageId],
+    }),
+    check('bill_sends_method', sql`${t.method} IN ('wa_me', 'cloud_api')`),
+    check('bill_sends_hash_format', sql`${t.tokenHash} ~ '^[0-9a-f]{64}$'`),
+    index().on(t.jobId, t.createdAt),
+    pgPolicy('bill_sends_garage_isolation', {
+      for: 'all',
+      using: garageScope(t.garageId),
+      withCheck: garageScope(t.garageId),
+    }),
+  ],
+);

@@ -6,6 +6,7 @@ Status: planned · Phase: pilot · Depends on: admin/07, admin/09
 The home page shows the numbers the product doc uses to decide whether to move to the next phase, so the go/no-go gates are read from real data.
 
 ## Decisions
+- **"Customers who came back after a reminder" (from api/13):** sent reminders with `returned_job_id` set, divided by sent reminders whose window has closed (due date + 30 days passed).
 - **Track the product doc's metrics table, not vanity numbers:**
   - Active garages (logged at least one job in the last 7 days)
   - Jobs per garage per week

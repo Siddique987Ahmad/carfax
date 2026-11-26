@@ -1,17 +1,26 @@
+import enBill from './locales/en/bill.json';
 import enCommon from './locales/en/common.json';
+import enReminder from './locales/en/reminder.json';
 import enWorkTypes from './locales/en/workTypes.json';
+import urBill from './locales/ur/bill.json';
 import urCommon from './locales/ur/common.json';
+import urReminder from './locales/ur/reminder.json';
 import urWorkTypes from './locales/ur/workTypes.json';
 
 export const LOCALES = ['en', 'ur'] as const;
 export type Locale = (typeof LOCALES)[number];
 
 /** English is the source: every key must exist in English first. One JSON file per feature. */
-const en = { common: enCommon, workTypes: enWorkTypes };
+const en = { common: enCommon, workTypes: enWorkTypes, bill: enBill, reminder: enReminder };
 export type Messages = typeof en;
 
 /** Urdu must have the same shape as English; a missing key fails type-check and the i18n test. */
-const ur: Messages = { common: urCommon, workTypes: urWorkTypes };
+const ur: Messages = {
+  common: urCommon,
+  workTypes: urWorkTypes,
+  bill: urBill,
+  reminder: urReminder,
+};
 
 export const messages: Record<Locale, Messages> = { en, ur };
 

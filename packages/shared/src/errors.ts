@@ -19,6 +19,8 @@ export const ERROR_CODES = [
   'GARAGE_PENDING',
   /** The garage is suspended: it can be viewed, not changed. */
   'GARAGE_SUSPENDED',
+  /** The job's customer has no phone number, so the bill can't be sent on WhatsApp (api/12). */
+  'NO_CUSTOMER_PHONE',
   /** Wrong code; details.attemptsLeft says how many tries remain (api/03). */
   'OTP_INVALID',
   /** No valid code: expired, already used, or never requested. Ask for a new one. */

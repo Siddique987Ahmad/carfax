@@ -1,0 +1,10 @@
+{
+  "forCar": "Bill for {car} ({plate})",
+  "date": "Date: {date}",
+  "odometer": "Odometer: {km} km",
+  "amount": "Rs. {amount}",
+  "total": "Total: {amount}",
+  "nextService": "Next service: {date}",
+  "viewBill": "View your bill: {link}",
+  "notice": "This car's service record (not your personal details) may appear in vehicle history reports."
+}

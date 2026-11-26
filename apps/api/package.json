@@ -34,6 +34,7 @@
   },
   "devDependencies": {
     "@carfax/db": "workspace:*",
+    "@carfax/i18n": "workspace:*",
     "@carfax/shared": "workspace:*",
     "@swc/core": "1.16.22",
     "@types/express": "5.0.6",

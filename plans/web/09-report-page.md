@@ -6,6 +6,7 @@ Status: planned · Phase: pilot · Depends on: web/08, workers/06, api/17
 The buyer sees the car's full recorded history in a page that's quick to read on a phone, with the warnings that matter at the top.
 
 ## Decisions
+- **Bill pages too (from api/12):** render `GET /v1/bills/:token` at `/b/:token` with the same layout and the `bill.notice` text; no login, no phone numbers.
 - **Warnings first:** a possible mileage rollback (a reading lower than an earlier one) and body-work records (denting, painting, panel replacement) are shown at the top, before the full list. The product doc says drops are flagged, never hidden.
 - **The report is a frozen copy.** It's built once per order (workers/06) and stored, so the page, the PDF and the verification QR code (web/10) always match.
 - **The mileage chart is plain SVG drawn on the server.** No chart library, so the page stays light on low-end phones (web/12).

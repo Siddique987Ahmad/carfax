@@ -11,6 +11,7 @@ import type { GarageContext } from '../access/access.decorators';
 import { CarIdentityService } from '../cars/car-identity.service';
 import { DB } from '../db/db.module';
 import { QueueService } from '../queue/queue.module';
+import { type NewJobForReminders, RemindersService } from '../reminders/reminders.service';
 import { StorageService } from '../storage/storage.module';
 import { MAX_PHOTO_BYTES, photoKey } from '../uploads/uploads.controller';
 
@@ -45,6 +46,7 @@ export class SyncService {
     private readonly cars: CarIdentityService,
     private readonly storage: StorageService,
     private readonly queue: QueueService,
+    private readonly reminders: RemindersService,
   ) {}
 
   async push(garage: GarageContext, userId: string, { changes }: SyncPush): Promise<PushResult> {
@@ -137,6 +139,7 @@ export class SyncService {
       const createdIds = new Set(changes.jobs.created.map((j) => j.id));
       const acceptsChildren = new Set<string>(); // jobs saved in this push
       const newJobIds: string[] = [];
+      const forReminders: NewJobForReminders[] = [];
       for (const job of [...changes.jobs.created, ...changes.jobs.updated]) {
         const owner = jobGarage.get(job.id);
         if (owner && owner !== garageId) {
@@ -200,7 +203,17 @@ export class SyncService {
           .onConflictDoNothing()
           .returning({ id: schema.jobs.id });
         acceptsChildren.add(job.id);
-        if (inserted.length) newJobIds.push(job.id); // empty: a simultaneous resend saved it first
+        if (inserted.length) {
+          newJobIds.push(job.id); // empty: a simultaneous resend saved it first
+          forReminders.push({
+            id: job.id,
+            carId,
+            customerId,
+            serviceDate: job.service_date,
+            nextServiceDueDate: job.next_service_due_date ?? null,
+            workTypes: [...new Set(items.map((i) => i.work_type))],
+          });
+        }
       }
       for (const id of changes.jobs.deleted) {
         if (jobGarage.get(id) === garageId) reject('jobs', id, 'JOB_LOCKED');
@@ -278,6 +291,9 @@ export class SyncService {
       for (const id of changes.job_photos.deleted) {
         if (photoOwner.get(id)?.garageId === garageId) reject('job_photos', id, 'PHOTO_LOCKED');
       }
+
+      // 6. Reminders: returned, cancelled and created from the new jobs (api/13).
+      await this.reminders.applyNewJobs(tx, garageId, forReminders);
 
       return { carRemaps, customerRemaps, newJobIds };
     });

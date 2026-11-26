@@ -6,6 +6,7 @@ Status: planned · Phase: pilot · Depends on: workers/04
 Customers get a WhatsApp reminder when their next service is due, and we measure whether they came back, since that's the main reason garages keep using the app.
 
 ## Decisions
+- **From api/13:** reminders are already created, cancelled and marked `returned` in the sync push (not at approval, as written below); this item adds **auto-send** (the per-garage setting, quiet hours 10:00–19:00, STOP opt-out) on top, through workers/04's Cloud API. Reuse `reminder.*` texts from `@carfax/i18n` and `REMINDER_RETURN_WINDOW_DAYS`.
 - **A reminder is scheduled when a job is approved,** based on its work type: oil change after 90 days by default, other types per a table in shared code. The garage can change the date or turn it off on the job card.
 - **Two modes, chosen per garage** (the tech doc's "send now or auto-send"):
   - **manual (one tap), the only mode in the pilot** (decided Nov 26, 2026): shown in the garage app's reminder list; the owner taps to send through `wa.me`

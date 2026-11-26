@@ -6,8 +6,10 @@ import { ZodSerializerInterceptor, ZodValidationPipe } from 'nestjs-zod';
 import type { DestinationStream } from 'pino';
 import { AccessGuard } from './access/access.guard';
 import { AuthModule } from './auth/auth.module';
+import { BillsModule } from './bills/bills.module';
 import { CarsModule } from './cars/cars.module';
 import { getConfig } from './config';
+import { CustomersModule } from './customers/customers.module';
 import { DbModule } from './db/db.module';
 import { AllExceptionsFilter } from './errors/exception.filter';
 import { GaragesModule } from './garages/garages.module';
@@ -16,6 +18,7 @@ import { HealthController } from './health/health.controller';
 import { loggerParams } from './logging';
 import { MessagingModule } from './messaging/messaging.module';
 import { RedisModule } from './redis/redis.module';
+import { RemindersModule } from './reminders/reminders.module';
 import { QueueModule } from './queue/queue.module';
 import { StorageModule } from './storage/storage.module';
 import { SyncModule } from './sync/sync.module';
@@ -42,6 +45,9 @@ export interface AppModuleOptions {
     QueueModule,
     SyncModule,
     JobsModule,
+    CustomersModule,
+    BillsModule,
+    RemindersModule,
   ],
   controllers: [HealthController],
   providers: [

@@ -50,3 +50,31 @@ describe('canonicalCar', () => {
     expect(canonicalCar('Honda', '')).toEqual({ make: 'Honda', model: null });
   });
 });
+
+describe('reminderForJob', () => {
+  it("uses the mechanic's date when set, otherwise the rule for the work", async () => {
+    const { reminderForJob } = await import('../reminders');
+    expect(
+      reminderForJob({
+        serviceDate: '2026-11-20',
+        nextServiceDueDate: '2027-01-15',
+        workTypes: ['oil_change'],
+      }),
+    ).toEqual({ kind: 'oil_change', dueDate: '2027-01-15' });
+    expect(
+      reminderForJob({ serviceDate: '2026-11-20', workTypes: ['brakes', 'oil_change'] }),
+    ).toEqual({ kind: 'oil_change', dueDate: '2027-02-18' });
+    expect(reminderForJob({ serviceDate: '2026-11-20', workTypes: ['tuning'] })).toEqual({
+      kind: 'tuning',
+      dueDate: '2027-05-19',
+    });
+    expect(reminderForJob({ serviceDate: '2026-11-20', workTypes: ['brakes'] })).toBeNull();
+    expect(
+      reminderForJob({
+        serviceDate: '2026-11-20',
+        nextServiceDueDate: '2027-03-01',
+        workTypes: ['brakes'],
+      }),
+    ).toEqual({ kind: 'brakes', dueDate: '2027-03-01' });
+  });
+});
