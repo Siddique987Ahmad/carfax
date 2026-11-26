@@ -12,7 +12,7 @@ setup/02 starts in week 1 alongside everything else, because outside approvals t
 | 01 | [Monorepo skeleton](01-monorepo.md) | done |
 | 02 | [Business accounts and approvals](02-business-accounts.md) | planned |
 | 03 | [Local development environment](03-local-dev.md) | done |
-| 04 | [Shared packages](04-shared-packages.md) | planned |
+| 04 | [Shared packages](04-shared-packages.md) | done |
 | 05 | [CI on pull requests](05-ci.md) | planned |
 | 06 | [Domain, DNS and email](06-domain-dns-email.md) | planned |
 | 07 | [Secrets management](07-secrets.md) | planned |

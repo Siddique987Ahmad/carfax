@@ -1,0 +1,12 @@
+{
+  "save": "Save",
+  "cancel": "Cancel",
+  "send": "Send",
+  "retry": "Try again",
+  "loading": "Loading…",
+  "sync": {
+    "savedOnPhone": "Saved on phone",
+    "synced": "Synced",
+    "pending": "{count} waiting to upload"
+  }
+}

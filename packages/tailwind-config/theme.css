@@ -1,0 +1,29 @@
+/* Generated from src/tokens.ts by `pnpm --filter @carfax/tailwind-config generate`. Do not edit. */
+/* Tailwind 4 apps: @import "tailwindcss"; then @import "@carfax/tailwind-config/theme.css"; */
+@theme {
+  --color-brand-50: #eef5ff;
+  --color-brand-100: #d9e8ff;
+  --color-brand-200: #bcd7ff;
+  --color-brand-300: #8ebdff;
+  --color-brand-400: #5998fd;
+  --color-brand-500: #3372f6;
+  --color-brand-600: #1d54db;
+  --color-brand-700: #1a44b0;
+  --color-brand-800: #1b3b8b;
+  --color-brand-900: #1c356e;
+  --color-brand-950: #152243;
+  --color-success-50: #ecfdf3;
+  --color-success-100: #d1fae0;
+  --color-success-600: #15803d;
+  --color-success-700: #166534;
+  --color-warning-50: #fffbeb;
+  --color-warning-100: #fef3c7;
+  --color-warning-600: #b45309;
+  --color-warning-700: #92400e;
+  --color-danger-50: #fef2f2;
+  --color-danger-100: #fee2e2;
+  --color-danger-600: #dc2626;
+  --color-danger-700: #b91c1c;
+  --font-sans: Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-urdu: "Noto Nastaliq Urdu", "Noto Naskh Arabic", serif;
+}

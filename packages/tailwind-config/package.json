@@ -1,0 +1,17 @@
+{
+  "name": "@carfax/tailwind-config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/preset.ts",
+    "./tokens": "./src/tokens.ts",
+    "./theme.css": "./theme.css"
+  },
+  "scripts": {
+    "generate": "node src/write-theme-css.ts",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  }
+}

@@ -13,7 +13,11 @@ apps/
   web/          Next.js public site: search, reports, dealers, owners
   admin/        React + Vite admin panel
   api/          NestJS REST API
-packages/       Shared code: db (Drizzle), shared (Zod, types), api-client, i18n, ui
+packages/
+  shared/          Constants, Zod schemas, plate and chassis normalisation, permissions
+  i18n/            Urdu and English text
+  tailwind-config/ Shared Tailwind theme (Tailwind 4 theme.css + Tailwind 3 preset)
+                   Later: db (Drizzle), api-client
 workers/        BullMQ background jobs: flags, photos, messages, report PDFs
 infra/          Docker and deployment files
 docs/           Product and technical documentation
