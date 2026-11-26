@@ -6,6 +6,7 @@ Status: done (Nov 27, 2026) · Phase: pre-pilot · Depends on: db/01
 One row per vehicle, built so that phones can create cars offline, duplicates can be merged later, and searching by plate is fast.
 
 ## Decisions
+- **Superseded in part by db/04b:** plates moved from `cars.reg_no` to the `car_registrations` history table, because a plate can move between cars. The rest of this plan stands.
 - **The phone can create the car ID.** `id` is a UUID with a server default for rows the API creates, but the API also accepts an ID from the phone. This fixes the tech-doc problem where offline car creation and a server-generated ID didn't fit together.
 - **`car_aliases` table** (alias_id → car_id). When two phones create the same car offline, the API keeps one and records the other phone's ID as an alias. Jobs that arrive later with the old ID still find the right car. api/06 uses this.
 - **`merged_into_id`** (admin/13): a merged car is never deleted; lookups follow the pointer.

@@ -68,6 +68,7 @@ Statuses: `planned` → `in progress` → `done`.
 
 - **ORM:** Drizzle ORM + drizzle-kit, not Prisma. The database is still PostgreSQL. (Nov 26, 2026)
 - **Roles:** a `user_roles` table replaces the single `users.role` column, so one person can hold several roles (db/02).
+- **Plates aren't a car's permanent identity:** since Sept 2025 a Punjab plate follows its owner and can move to another car. Plates are a dated history (`car_registrations`), the chassis number is the real identity, and each job stores the plate it was serviced under (db/04b). (Nov 27, 2026)
 - **Cars created offline:** the phone creates the car ID. On sync, a duplicate plate or chassis maps to the existing car through `car_aliases` (db/04, api/06).
 - **Reports:** free while a city is below its coverage gate. Free or paid per city is set in one config file, `report-pricing.ts` (api/16), not in a database table, until there are several cities.
 - **Owner claims:** approved automatically when the owner's phone matches a garage's customer record or the full chassis number matches. There are no document uploads or manual review in the MVP (api/20, web/16).

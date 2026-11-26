@@ -6,6 +6,7 @@ Status: planned · Phase: pilot · Depends on: web/03
 A buyer can type a plate or chassis number however it's written, and the search finds the right car.
 
 ## Decisions
+- **A plate search finds the car that has the plate now (db/04b),** because plates can move between cars. The report covers that car's whole history, including jobs under its earlier plates.
 - **One search box for both kinds of number.** The site guesses the type (chassis numbers are long and contain a dash or many digits), with a small switch to correct it.
 - **Use the shared normalisation functions** from `packages/shared` (`normaliseRegNo` from admin/11, plus `normaliseChassisNo`), so the site, the garage app and the admin panel all match numbers the same way.
 - **Searching needs no login.** Login is asked for only when the buyer opens a report (web/08).

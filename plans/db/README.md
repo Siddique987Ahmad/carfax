@@ -11,6 +11,7 @@ Each plan adds one group of tables (or one safety feature) with its migration, Z
 | 02 | [Users, roles and admin login data](02-users-and-roles.md) | done |
 | 03 | [Garages, staff and customers](03-garages-members-customers.md) | done |
 | 04 | [Cars](04-cars.md) | done |
+| 04b | [Plate history](04b-plate-history.md) | done |
 | 05 | [Jobs, work items, photos, flags and reminders](05-jobs-and-reminders.md) | planned |
 | 06 | [Audit log and database users](06-audit-log-and-db-users.md) | planned |
 | 07 | [Row-level security for garage data](07-row-level-security.md) | planned |
@@ -30,7 +31,8 @@ Each plan adds one group of tables (or one safety feature) with its migration, Z
 
 ## Changes from the tech doc's schema
 - **Roles:** `users.role` is replaced by a `user_roles` table, so one person can hold several roles. Garage roles move to `garage_members` (db/02, db/03).
-- **Cars:** the phone can create the car ID, plus a `car_aliases` table, so cars created offline sync cleanly. A car needs a plate or a chassis number. `reg_year` added (db/04).
+- **Cars:** the phone can create the car ID, plus a `car_aliases` table, so cars created offline sync cleanly. A car needs a plate or a chassis number (db/04).
+- **Plates are a dated history** in `car_registrations`, not a column on `cars`, because Punjab plates follow their owner since Sept 2025. The chassis number is the car's real identity (db/04b).
 - **Photos:** `lat`, `lng` and `gps_accuracy_m` on `job_photos`. `job_flags` gets `created_at` and `details` (db/05).
 - **Sync:** synced tables get `updated_at` triggers and `deleted_at` soft deletes for sync pulls (db/03, db/04, db/05).
 - **Audit log:** `audit_logs.note`, plus separate database users, so the app can't edit the audit log or skip row-level security (db/06).

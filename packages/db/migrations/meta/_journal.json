@@ -36,6 +36,13 @@
       "when": 1795724539937,
       "tag": "0004_cars",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1795724876865,
+      "tag": "0005_plate_history",
+      "breakpoints": true
     }
   ]
 }

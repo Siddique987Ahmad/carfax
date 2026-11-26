@@ -6,6 +6,7 @@ Status: planned · Phase: pre-pilot · Depends on: garage-app/09, api: car looku
 After the plate is entered, the mechanic confirms it's the right car, or adds a new one in a few taps, even with no internet.
 
 ## Decisions
+- **Plates can move between cars (db/04b).** When a scanned plate is found, show the car's make, model and year and ask "Is this the car?". "No, different car" creates a new car with this plate; the server moves the plate (api/06). Ask for the chassis number when the car is new, since it's the car's real identity.
 - **Look locally first** (cars this garage has serviced). If not found and online, call `GET /cars/lookup?reg=` to fetch make, model and year if another garage already added the car. If offline, create it.
 - **New cars get a UUID on the phone.** If the server already has that plate, it maps the phone's car to the existing one during sync and tells the phone the real ID. Flag this to the api/ car lookup plan; it reuses the merge logic in admin/13.
 - **Never show other garages' odometer readings or jobs.** It could leak another garage's business and would show a cheater what number to beat.

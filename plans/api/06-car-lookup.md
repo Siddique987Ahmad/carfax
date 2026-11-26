@@ -6,6 +6,7 @@ Status: planned · Phase: pre-pilot · Depends on: api/04, db: core tables, admi
 A mechanic finds a car by its plate, or adds it if it's new, online or offline, and the same car never ends up as two records because two garages added it without internet.
 
 ## Decisions
+- **Plates can move between cars (db/04b).** Since Sept 2025 a Punjab plate follows its owner. Look up plates in `car_registrations` (current plates only, `valid_to IS NULL`), and treat the chassis number as the real identity. When the app reports "different car" for a found plate, end that registration (`plate_moved`) and create the new car with the plate, in one transaction. A mileage far below the last record for that plate is a hint the plate moved, not only a rollback.
 - **One normalisation function** (`normaliseRegNo` in `packages/shared`) used by the app, the API and admin search, so `LEA-1234` and `lea 1234` are the same car.
 - **Online:** `GET /cars/lookup?reg=` (tech doc) returns the car or "not found", and `POST /cars` creates it.
 - **Offline:** the phone creates the car with its own UUID. When it arrives in sync push (api/08), the API checks plate and chassis:

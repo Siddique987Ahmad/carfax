@@ -3,7 +3,7 @@
 // Request-only schemas (forms, filters) stay hand-written in @carfax/shared.
 import { ChassisNoSchema, PAKISTAN_MOBILE_PATTERN, RegNoSchema } from '@carfax/shared';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
-import { carAliases, cars } from './schema/cars';
+import { carAliases, carRegistrations, cars } from './schema/cars';
 import { customers, garageMembers, garages } from './schema/garages';
 import { userRoles, users } from './schema/users';
 
@@ -37,17 +37,19 @@ export const customerInsertSchema = createInsertSchema(customers, {
 });
 export const customerSelectSchema = createSelectSchema(customers);
 
-// cars (db/04)
-/** Any plate or chassis spelling goes in; the normalised form comes out. Needs at least one of the two. */
+// cars and plate history (db/04, db/04b)
+/** Any chassis spelling goes in; the normalised form comes out. Plates are in carRegistrationInsertSchema. */
 export const carInsertSchema = createInsertSchema(cars, {
-  regNo: RegNoSchema.nullish(),
   chassisNo: ChassisNoSchema.nullish(),
   year: (s) => s.min(1950).max(2100),
-  regYear: (s) => s.min(1950).max(2100),
-}).refine((car) => car.regNo != null || car.chassisNo != null, {
-  message: 'A car needs a registration number or a chassis number',
-  path: ['regNo'],
 });
 export const carSelectSchema = createSelectSchema(cars);
+
+/** Any plate spelling goes in; the normalised form comes out. */
+export const carRegistrationInsertSchema = createInsertSchema(carRegistrations, {
+  regNo: RegNoSchema,
+  regYear: (s) => s.min(1950).max(2100),
+});
+export const carRegistrationSelectSchema = createSelectSchema(carRegistrations);
 
 export const carAliasSelectSchema = createSelectSchema(carAliases);

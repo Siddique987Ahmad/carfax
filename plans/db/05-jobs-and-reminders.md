@@ -6,6 +6,7 @@ Status: planned · Phase: pre-pilot · Depends on: db/03, db/04
 The tables that hold every service visit and its evidence. This is the data the whole product is built on, so it must support offline sync, fraud checks and reports.
 
 ## Decisions
+- **Each job stores the plate it was serviced under** (`jobs.reg_no`, normalised), because plates can move between cars (db/04b).
 - **The phone creates the job ID**, as in the tech doc, so resending the same job never makes a duplicate. Work items and photos also get phone-made IDs.
 - **Job status** as in the tech doc: `draft`, `submitted`, `approved`, `flagged`, `rejected`.
 - **`excluded_from_reports`** on jobs (admin/15): ops can keep a removed garage's jobs out of reports without deleting them.

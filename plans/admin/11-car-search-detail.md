@@ -6,6 +6,7 @@ Status: planned · Phase: pilot · Depends on: admin/06, db/04
 Anyone on the team can find a car by plate or chassis number and see its full record, which is the same data a paid report would use, plus what was left out and why.
 
 ## Decisions
+- **Search covers current and past plates (db/04b).** A plate search shows which car has it now and which cars had it before, with dates. The car page lists its plate history.
 - **Search uses the same normalisation as the API** (`LEA-1234`, `lea 1234` → `LEA1234`), from one shared function in `packages/shared`.
 - **Show every job, including flagged and rejected ones,** clearly marked. A "what the report would show" toggle hides everything except approved jobs.
 - **No customer names or phones on this screen.** Support doesn't need them to answer a car question, and it matches the privacy rules.
