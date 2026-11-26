@@ -17,7 +17,8 @@ packages/
   shared/          Constants, Zod schemas, plate and chassis normalisation, permissions
   i18n/            Urdu and English text
   tailwind-config/ Shared Tailwind theme (Tailwind 4 theme.css + Tailwind 3 preset)
-                   Later: db (Drizzle), api-client
+  db/              Drizzle schema, migrations and the database client
+                   Later: api-client
 workers/        BullMQ background jobs: flags, photos, messages, report PDFs
 infra/          Docker and deployment files
 docs/           Product and technical documentation
@@ -79,6 +80,10 @@ Run these from the repo root. Turborepo runs each one in every app and package t
 - TypeScript in strict mode everywhere. Each package extends `tsconfig.base.json`.
 - Each package's `eslint.config.mjs` extends the root `eslint.config.mjs`.
 - Secrets never go in git. Only `.env.example` files are committed.
+
+## Database
+
+Schema changes go through migrations: edit `packages/db/src/schema/`, run `pnpm db:generate`, read the new SQL file, run `pnpm db:migrate`, and commit both. `pnpm db:check` (also run in CI) fails if a schema change has no migration. See [packages/db/README.md](packages/db/README.md).
 
 ## CI
 

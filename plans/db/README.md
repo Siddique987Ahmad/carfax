@@ -1,13 +1,13 @@
 # db — PostgreSQL with Drizzle
 
-Code: `packages/db`. Stack: PostgreSQL 16, Drizzle ORM, drizzle-kit migrations (SQL files generated, reviewed and committed; `push` only for local experiments), drizzle-zod for Zod schemas shared through `packages/shared`.
+Code: `packages/db`. Stack: PostgreSQL 16, Drizzle ORM, drizzle-kit migrations (SQL files generated, reviewed and committed; `push` only for local experiments), drizzle-zod for Zod schemas from the tables, exported from `@carfax/db/zod` (not through `packages/shared`, see db/01).
 
 Each plan adds one group of tables (or one safety feature) with its migration, Zod schemas and checks. Build them one at a time, in this order. Statuses: `planned` → `in progress` → `done`.
 
 ## Pre-pilot
 | # | Plan | Status |
 |---|---|---|
-| 01 | [Drizzle setup, migrations and client](01-drizzle-setup.md) | planned |
+| 01 | [Drizzle setup, migrations and client](01-drizzle-setup.md) | done |
 | 02 | [Users, roles and admin login data](02-users-and-roles.md) | planned |
 | 03 | [Garages, staff and customers](03-garages-members-customers.md) | planned |
 | 04 | [Cars](04-cars.md) | planned |

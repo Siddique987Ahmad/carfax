@@ -50,3 +50,6 @@ pnpm-debug.log*
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# drizzle-kit scratch output (packages/db db:check)
+.migration-check/

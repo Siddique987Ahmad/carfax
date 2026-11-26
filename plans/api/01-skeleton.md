@@ -25,6 +25,7 @@ An API that starts, connects to Postgres through Drizzle, validates input with t
 - Tests setup (api/02), auth (api/03), any business module
 
 ## Steps
+0. Run `pnpm db:migrate` before the API starts in `dev` (moved here from db/01), and use the NestJS `DbModule` example in `packages/db/README.md`.
 1. Scaffold the NestJS app and extend `tsconfig.base.json`.
 2. Config module with a Zod env schema; fail fast on missing values.
 3. `DbModule` with a pooled `pg` connection and the Drizzle instance; a `RedisModule` for BullMQ and rate limits.

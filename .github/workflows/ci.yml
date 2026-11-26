@@ -87,14 +87,8 @@ jobs:
       - name: Lint, type-check and test packages
         run: pnpm turbo run lint typecheck test ${{ steps.scope.outputs.filter }}
 
-      # Fails if someone changed the database schema without committing the migration.
-      # Switches on automatically once packages/db exists (db/01).
+      # Fails if someone changed the database schema without committing the migration,
+      # or if the committed migrations are inconsistent (packages/db/scripts/check-migrations.mjs).
       - name: Migration check
         if: hashFiles('packages/db/drizzle.config.ts') != ''
-        run: |
-          pnpm --filter @carfax/db exec drizzle-kit generate
-          if [ -n "$(git status --porcelain -- packages/db)" ]; then
-            echo "::error::The schema changed but the migration wasn't committed. Run the db generate command and commit the new files."
-            git status --porcelain -- packages/db
-            exit 1
-          fi
+        run: pnpm db:check

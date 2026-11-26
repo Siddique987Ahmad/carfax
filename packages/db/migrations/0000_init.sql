@@ -1,0 +1,2 @@
+-- First migration: intentionally empty. It proves the migration pipeline (db/01).
+-- Tables start in db/02.

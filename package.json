@@ -18,7 +18,11 @@
     "services:down": "docker compose -f infra/docker-compose.yml down",
     "services:reset": "docker compose -f infra/docker-compose.yml down -v && pnpm services:up",
     "services:check": "node scripts/check-services.mjs",
-    "services:logs": "docker compose -f infra/docker-compose.yml logs -f"
+    "services:logs": "docker compose -f infra/docker-compose.yml logs -f",
+    "db:generate": "pnpm --filter @carfax/db db:generate",
+    "db:migrate": "pnpm --filter @carfax/db db:migrate",
+    "db:studio": "pnpm --filter @carfax/db db:studio",
+    "db:check": "pnpm --filter @carfax/db db:check"
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "3.1169.0",
