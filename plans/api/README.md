@@ -19,7 +19,8 @@ What the garage app needs for the pilot: sign-in, garages, cars, photos, sync, b
 | 06 | [Car lookup and offline-created cars](06-car-lookup.md) | done |
 | 07 | [Signed photo uploads](07-signed-uploads.md) | done |
 | 08 | [Sync push (offline jobs to server)](08-sync-push.md) | done |
-| 09 | [Sync pull (server changes to phone)](09-sync-pull.md) | planned |
+| 08b | [Correction requests from the garage](08b-correction-requests.md) | planned (next) |
+| 09 | [Sync pull (server changes to phone)](09-sync-pull.md) | done |
 | 10 | [Garage jobs list and detail](10-garage-jobs.md) | planned |
 | 11 | [Customers](11-customers.md) | planned |
 | 12 | [Send the bill on WhatsApp](12-send-bill.md) | planned |

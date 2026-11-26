@@ -6,6 +6,7 @@ Status: planned · Phase: pilot · Depends on: admin/11
 Ops can fix a wrong make, model, plate or odometer value, and every fix is recorded with who made it, why, and the value before and after.
 
 ## Decisions
+- **Garage correction requests (api/08b, approved Nov 27, 2026):** list open `job_correction_requests` here, next to the flagged-jobs queue. Approving applies the proposed values through this same audited edit (with the request's message as the note); rejecting needs a reason. The garage sees the outcome on its next sync pull.
 - **Edit with a required note,** never silently. The API writes `before`/`after` JSON to `audit_logs`, as in the tech doc.
 - **Only a small set of fields can be edited:** car (plate, chassis, make, model, year) and job (odometer reading, service date, work items). Everything else is read-only.
 - **Changing a plate to one that already exists is blocked,** with a link to merge instead (admin/13).

@@ -58,4 +58,4 @@ Jobs saved on a phone without internet reach the server safely when it reconnect
 - [x] Every new job gets a flag check, even when Redis was down during the push: queued once per new job; when queueing fails, the push succeeds and the job stays `submitted` for the sweeper, which workers/02 builds
 
 ## Open questions
-- If a mechanic made a mistake after submitting (wrong odometer), how do they ask for a fix? Proposed: a "request correction" note from the app that lands in the admin review queue. Still open; today an edit comes back as `JOB_LOCKED`.
+- ~~If a mechanic made a mistake after submitting, how do they ask for a fix?~~ Decided Nov 27, 2026: a "request correction" from the app that lands in the admin review queue. Planned as api/08b.
